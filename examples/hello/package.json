@@ -4,7 +4,11 @@
   "type": "module",
   "scripts": {
     "check": "d-studio check",
-    "play": "d-studio play"
+    "play": "d-studio play",
+    "dirt": "d-studio dirt",
+    "dirt-install": "d-studio dirt-install",
+    "export": "d-studio export",
+    "test": "d-studio test"
   },
   "dependencies": {
     "@d-studio-labs/core": "*"

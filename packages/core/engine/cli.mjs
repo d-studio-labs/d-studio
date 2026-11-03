@@ -2,7 +2,7 @@
 // ── d-studio <command>: registers the resolve hook, then runs the command ──
 // A project's own node doesn't need --import; this does it before importing.
 import { register } from 'node:module'
-import { spawnSync } from 'node:child_process'
+import { spawn, spawnSync } from 'node:child_process'
 import { fileURLToPath } from 'node:url'
 register('./resolve-hook.mjs', import.meta.url)
 
@@ -12,16 +12,23 @@ const commands = {
   export: './export.mjs',
   samples: './samples.mjs',
   ping: './ping.mjs',
+  test: './soundcheck.mjs',
 }
 
 const SCLANG = process.env.SCLANG || '/Applications/SuperCollider.app/Contents/MacOS/sclang'
 const SUPERDIRT = new URL('../superdirt/', import.meta.url)
 
-/** Runs an .scd file with sclang, inheriting stdio; exits with its code. */
+/**
+ * Runs an .scd file with sclang, inheriting stdout/stderr; exits with its code.
+ * sclang quits the moment its stdin hits EOF — true the instant it has no real
+ * TTY (any non-interactive run: a background task, CI, launched by another
+ * tool). Giving it a pipe we never write to or close keeps stdin merely empty,
+ * never EOF, so it stays resident either way.
+ */
 function sclang(file) {
   const path = fileURLToPath(new URL(file, SUPERDIRT))
-  const result = spawnSync(SCLANG, [path], { stdio: 'inherit' })
-  process.exit(result.status ?? 1)
+  const child = spawn(SCLANG, [path], { stdio: ['pipe', 'inherit', 'inherit'] })
+  child.on('exit', (code) => process.exit(code ?? 1))
 }
 
 const command = process.argv[2]
