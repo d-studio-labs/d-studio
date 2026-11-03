@@ -5,11 +5,4 @@
 // A short, tight delay for roll, no reverb wash.
 import { sound } from '@strudel/core'
 
-// every 16 bars, a doubled-up roll — a mini variation, landing with the perc roll
-export const pulse = sound('click(5,16)')
-  .hpf(2000)
-  .delay(0.15)
-  .delaytime(0.125)
-  .delayfeedback(0.25)
-  .gain(0.3)
-  .every(16, (p) => p.fast(2))
+export const pulse = sound('click(5,16)').hpf(2000).delay(0.15).delaytime(0.125).delayfeedback(0.25).gain(0.3)
