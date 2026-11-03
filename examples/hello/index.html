@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>D-Studio</title>
+    <style>
+      :root {
+        --bg: #0e0e0d;
+        --panel: #151513;
+        --line: #262622;
+        --grid: #2c2c27;
+        --ink: #d9d4c7;
+        --ink-dim: #7d7a70;
+        --accent: #f0a14a;
+        --error: #ff6b5a;
+        --lanes: #c98a45, #4fc3c9, #8fa66a, #b97fbf, #d6c27a, #6f8fd6, #9aa6a6;
+        color-scheme: dark;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+        background: var(--bg);
+        color: var(--ink);
+      }
+      body {
+        font:
+          13px/1.5 ui-monospace,
+          SFMono-Regular,
+          Menlo,
+          monospace;
+        display: grid;
+        grid-template-rows: 1fr auto;
+        grid-template-areas: 'lanes' 'status';
+      }
+      #lanes {
+        grid-area: lanes;
+        width: 100%;
+        height: 100%;
+        min-height: 0;
+        display: block;
+      }
+      footer {
+        grid-area: status;
+        display: flex;
+        gap: 20px;
+        align-items: center;
+        padding: 6px 14px;
+        border-top: 1px solid var(--line);
+        background: var(--panel);
+        color: var(--ink-dim);
+      }
+      #track,
+      #time {
+        color: var(--ink);
+        font-variant-numeric: tabular-nums;
+      }
+      #state[data-on='1'] {
+        color: var(--accent);
+      }
+      #msg {
+        margin-left: auto;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      #msg[data-kind='error'] {
+        color: var(--error);
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="lanes"></canvas>
+    <footer>
+      <span id="track"></span>
+      <span id="state">○ waiting for d-studio play</span>
+      <span id="time"></span>
+      <span id="bar">bar 1 · 1/4</span>
+      <span id="bpm"></span>
+      <span id="msg"></span>
+    </footer>
+    <script type="module">
+      import '@d-studio-labs/core/main'
+    </script>
+  </body>
+</html>

@@ -18,7 +18,9 @@
     "./play": "./engine/headless.mjs",
     "./export": "./engine/export.mjs",
     "./samples": "./engine/samples.mjs",
-    "./ping": "./engine/ping.mjs"
+    "./ping": "./engine/ping.mjs",
+    "./main": "./engine/main.js",
+    "./vite-plugin": "./engine/vite-plugin.js"
   },
   "dependencies": {
     "@d-studio-labs/synths": "*",

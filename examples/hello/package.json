@@ -9,9 +9,13 @@
     "dirt-install": "d-studio dirt-install",
     "export": "d-studio export",
     "test": "d-studio test",
-    "samples": "d-studio samples"
+    "samples": "d-studio samples",
+    "dev": "vite"
   },
   "dependencies": {
     "@d-studio-labs/core": "*"
+  },
+  "devDependencies": {
+    "vite": "^7.0.0"
   }
 }
