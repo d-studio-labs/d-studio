@@ -38,12 +38,14 @@ export const hats = sound('<hh*16 hh(11,16) [hh hh ~ hh]*4 hh*8>')
   .swingBy(0.08, 8)
 
 // the "dum-tak": two TR909 claps stacked a few ms apart with a slight pitch
-// offset (the classic "fat clap" trick — one clap alone sounds thin/toy),
-// high-passed to cut the cowbell-ish ring, crushed for grit, into a bigger,
-// darker room than before — underground, not a clean preset
-const clap1 = sound('~ cp ~ cp').bank('RolandTR909').hpf(500).gain(0.5)
-const clap2 = sound('~ cp ~ cp').bank('RolandTR909').hpf(500).note(-1).gain(0.35).nudge(0.015)
-const clapRoom = sound('~ cp ~ cp').bank('RolandTR909').hpf(400).lpf(2500).room(1).roomsize(0.85).crush(5).gain(0.3)
-const texture = sound('~ noise2 ~ noise2').hpf(3000).gain(0.12)
+// offset (the classic "fat clap" trick), crushed for grit, a dark room — and
+// a prominent noise layer, since a clean 909 clap on its own always reads as
+// a drum-machine demo; the broadband noise is what makes it feel underground
+// rather than synthetic. hpf is lower than before (300, not 500) so it keeps
+// some low-mid body instead of being thin and bright.
+const clap1 = sound('~ cp ~ cp').bank('RolandTR909').hpf(300).crush(5).gain(0.5)
+const clap2 = sound('~ cp ~ cp').bank('RolandTR909').hpf(300).crush(5).note(-1).gain(0.35).nudge(0.015)
+const clapRoom = sound('~ cp ~ cp').bank('RolandTR909').hpf(300).lpf(2500).room(1).roomsize(0.85).crush(5).gain(0.3)
+const texture = sound('~ noise2 ~ noise2').hpf(1200).lpf(6000).gain(0.2)
 // a brief roll every 16 bars — a mini turnaround so the loop isn't static
 export const perc = stack(clap1, clap2, clapRoom, texture).every(16, (p) => p.fast(2))
