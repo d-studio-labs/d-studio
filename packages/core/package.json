@@ -3,13 +3,22 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
+  "bin": {
+    "d-studio": "./engine/cli.mjs"
+  },
   "exports": {
     "./mod": "./lib/mod.js",
     "./arrange": "./lib/arrange.js",
     "./drums": "./lib/drums.js",
     "./fx": "./lib/fx.js",
     "./space": "./lib/space.js",
-    "./midi": "./lib/midi.js"
+    "./midi": "./lib/midi.js",
+    "./register": "./engine/register.mjs",
+    "./check": "./engine/check.mjs",
+    "./play": "./engine/headless.mjs",
+    "./export": "./engine/export.mjs",
+    "./samples": "./engine/samples.mjs",
+    "./ping": "./engine/ping.mjs"
   },
   "dependencies": {
     "@julusian/midi": "^3.8.1",

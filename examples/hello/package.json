@@ -1,0 +1,12 @@
+{
+  "name": "hello",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "check": "d-studio check",
+    "play": "d-studio play"
+  },
+  "dependencies": {
+    "@d-studio-labs/core": "*"
+  }
+}
