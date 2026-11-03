@@ -27,12 +27,15 @@ export const kick = stack(click, dry, sub, reverbReturn)
 
 // hats: a 4-bar cycle of different angles — straight 16ths, a euclidean
 // variant, a syncopated feel, then sparser. Darker filter range and a touch
-// of crush so it reads as worn/analog, not a clean digital drum-machine demo
+// of crush so it reads as worn/analog, not a clean digital drum-machine demo.
+// A light swing (every other 8th nudged late) is where the groove actually
+// comes from — the kick and bass stay dead straight as the anchor
 export const hats = sound('<hh*16 hh(11,16) [hh hh ~ hh]*4 hh*8>')
   .bank('RolandTR909')
   .gain('[0.08 0.14]*8')
   .lpf(drift(1800, 3500, 17))
   .crush(6)
+  .swingBy(0.08, 8)
 
 // the "dum-tak": two TR909 claps stacked a few ms apart with a slight pitch
 // offset (the classic "fat clap" trick — one clap alone sounds thin/toy),
