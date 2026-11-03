@@ -33,6 +33,9 @@ export const parts = {
   bass: bass.apply(fadeIn(4, 16)),
   pulse: pulse.apply(fadeIn(8, 20)),
   lead: lead.apply(fadeIn(16, 28)),
-  stab: stab.apply(during([32, 64])), // only from the breakdown on — a color for the return, not a constant
+  // only from the breakdown on, and eased in over those 8 bars — it was
+  // popping in at full volume right as the kick dropped, which read as a
+  // loudness surge even though the overall mix is actually quieter there
+  stab: stab.apply(during([32, 64])).apply(fadeIn(32, 40)),
   pad: pad.apply(fadeIn(24, 36)), // joins late, lands under the breakdown — a counterweight to the kick dropping out
 }
