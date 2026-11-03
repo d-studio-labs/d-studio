@@ -1,29 +1,45 @@
-// ── Pad: a slow, dark wash — counterbalances the aggression, atmosphere not harmony ──
-// Two layers, not one — the previous single mid-range layer had no body:
-// 1. low: filtered dark and low, the actual warmth/weight (quiet, supportive,
-//    not competing with the bass rhythmically)
-// 2. high: the audible wash, with a real progression across the whole 64
-//    bars — separated from gain (which still fades in early, see index.js)
-//    so the filter sweep is actually audible once it's no longer near-silent
-//
-// `padlong` is longer than the plain `pad` sample but doesn't actually
-// sustain for 4 bars (measured) — retriggering every 2 bars instead, so the
-// next hit always lands before the previous one's tail runs out. Shifted off
-// beat 1 (.late) so its onset doesn't land in the same instant as the
-// kick/hats/bass — it gets a moment of relative space to breathe.
+// ── Pad: a cinematic wash — counterbalances the aggression, atmosphere not harmony ──
+// `gm_synth_strings_1` (used successfully elsewhere) turned out not to be
+// loaded on this SuperDirt install at all — "instrument not found" in the
+// log, confirmed by direct measurement, not a guess. Back to `padlong`
+// (confirmed working), but three slightly detuned copies instead of one —
+// the classic chorus trick for width/complexity, rather than a single thin
+// voice (which is what was reading as a cheap "UFO" synth pad).
+// Two layers:
+// 1. low: dark and low, the actual body/warmth (quiet, supportive, not
+//    competing with the bass rhythmically)
+// 2. high: three detuned voices stacked for complexity, with a progression
+//    across the whole 64 bars — separated from gain (which fades in early,
+//    see index.js) so the filter sweep is audible once it's not near-silent
+// Shifted off beat 1 (.late) so its onset doesn't land in the same instant
+// as the kick/hats/bass — it gets a moment of relative space to breathe.
 import { note, stack } from '@strudel/core'
 import { arrangement } from '@d-studio-labs/core/arrange'
 
 const { env } = arrangement(64)
 
-const low = note('<c1 eb1>/2').sound('padlong').lpf(280).room(0.4).roomsize(0.8).gain(0.22).late(0.5)
+// a melodic arc, not a ping-pong dyad: root → third → fifth → third, outlining
+// the minor triad instead of oscillating between two notes (that oscillation
+// under a dark pad is the classic horror-sting interval)
+const low = note('<c1 eb1 g1 eb1>/2').sound('padlong').lpf(280).room(0.4).roomsize(0.8).gain(0.26).late(0.5)
 
-const high = note('<c2 eb2>/2')
+const highFilter = env([0, 400], [40, 2000], [64, 400])
+const voice1 = note('<c2 eb2 g2 eb2>/2').sound('padlong').lpf(highFilter).room(0.5).roomsize(0.85).gain(0.24).late(0.5)
+const voice2 = note('<c2 eb2 g2 eb2>/2')
   .sound('padlong')
-  .lpf(env([0, 400], [40, 2000], [64, 400]))
+  .detune(0.08)
+  .lpf(highFilter)
   .room(0.5)
   .roomsize(0.85)
-  .gain(0.3)
-  .late(0.5)
+  .gain(0.18)
+  .late(0.52)
+const voice3 = note('<c2 eb2 g2 eb2>/2')
+  .sound('padlong')
+  .detune(-0.08)
+  .lpf(highFilter)
+  .room(0.5)
+  .roomsize(0.85)
+  .gain(0.18)
+  .late(0.48)
 
-export const pad = stack(low, high)
+export const pad = stack(low, voice1, voice2, voice3)

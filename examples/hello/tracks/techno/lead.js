@@ -11,6 +11,6 @@ import { drift } from '@d-studio-labs/core/mod'
 // clash with everything else converging at bar 16
 export const lead = note('<[c2 ~ eb2 ~ c2 ~ bb1 ~] [c2 ~ eb2 ~ bb1 ~ c2 eb2]>')
   .sound('juno')
-  .lpf(drift(150, 900, 43))
-  .gain(0.25)
-  .every(16, (p) => p.lpf(drift(800, 1600, 43)))
+  .lpf(drift(120, 500, 43))
+  .gain(0.22)
+  .every(16, (p) => p.lpf(drift(400, 900, 43)))
