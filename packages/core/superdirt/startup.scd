@@ -51,9 +51,11 @@ if (inDevice.notNil and: { device.notNil }) { s.options.inDevice = inDevice };
 
 s.waitForBoot {
 	~dirt = SuperDirt(2, s);
-	// the engine's modules (superdirt/synths/*.scd), then the project's own synths
-	// (synths/*.scd). SuperDirt's extras (supersaw…) only load when sc3-plugins is installed.
-	~dirt.loadSynthDefs(here +/+ "synths");
+	// @d-studio-labs/synths (the shared SynthDefs, a sibling package under the same
+	// @d-studio-labs scope — ../../synths from here, in the monorepo or a real install
+	// alike), then the project's own synths (synths/*.scd). SuperDirt's extras
+	// (supersaw…) only load when sc3-plugins is installed.
+	if (File.exists(here +/+ "../../synths")) { ~dirt.loadSynthDefs(here +/+ "../../synths") };
 	if (File.exists(project +/+ "synths")) { ~dirt.loadSynthDefs(project +/+ "synths") };
 	~dirt.loadSoundFiles;
 	// drum machines from `npm run samples`: one folder per sound, e.g. RolandTR909_bd

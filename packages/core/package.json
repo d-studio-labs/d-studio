@@ -21,6 +21,7 @@
     "./ping": "./engine/ping.mjs"
   },
   "dependencies": {
+    "@d-studio-labs/synths": "*",
     "@julusian/midi": "^3.8.1",
     "@strudel/core": "^1.2.6",
     "@strudel/mini": "^1.2.6"
