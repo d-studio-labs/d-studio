@@ -11,7 +11,13 @@ import { drift } from '@d-studio-labs/core/mod'
 //    clean sub above from being smeared, lpf strips the tail's mud/highs so
 //    it's a dark low-mid roll, not a wash) and crushed for grit — on its own
 //    orbit, sidechain-ducked by dry+sub on every hit so it pumps, not pools
-const dry = sound('bd*4').bank('RolandTR909').gain(0.95).duckorbit('1')
+// every 16 bars, the dry hit gets noticeably crushed for that one bar only —
+// a textural accent, not a constant; same hits, same count, just dirtier
+const dry = sound('bd*4')
+  .bank('RolandTR909')
+  .gain(0.95)
+  .duckorbit('1')
+  .every(16, (p) => p.crush(3))
 const sub = sound('bd*4').bank('RolandTR909').note(-12).lpf(100).gain(0.6).duckorbit('1')
 const reverbReturn = sound('bd*4')
   .bank('RolandTR909')
