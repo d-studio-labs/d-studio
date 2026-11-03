@@ -5,12 +5,12 @@
 // fadeIn() for builds.
 //
 //  0 ────── 16 ────── 32 ────── 40 ────────── 64 (loops)
-//  intro      full groove   breakdown    kick returns, full energy
-//  kick+hats  +perc+bass    kick OUT —   stab joins for the second half,
-//  only       +pulse+lead   the "solo":  a different color for the return
-//                           bass+lead+
-//                           pulse+perc
-//                           alone
+//  pad opens, intro  full groove   breakdown    kick returns, full energy
+//  kick+hats join    +perc+bass    kick OUT —   stab joins for the second half,
+//                     +pulse+lead  the "solo":  a different color for the return
+//                                  bass+lead+
+//                                  pulse+perc+
+//                                  pad alone
 
 import { arrangement, fadeIn } from '@d-studio-labs/core/arrange'
 import { kick, hats, perc } from './drums.js'
@@ -27,8 +27,8 @@ const { during } = arrangement(BARS)
 
 // every key here is one lane; comment one out to mute it
 export const parts = {
-  kick: kick.apply(during([0, 32], [40, 64])), // out for the breakdown (32–40): the solo
-  hats, // the anchor — never drops, even through the breakdown
+  kick: kick.apply(during([2, 32], [40, 64])), // 2 bars of pad alone first, out for the breakdown (32–40): the solo
+  hats: hats.apply(fadeIn(0, 2)), // the anchor — in by bar 2, never drops again, even through the breakdown
   perc: perc.apply(fadeIn(0, 8)),
   bass: bass.apply(fadeIn(4, 16)),
   pulse: pulse.apply(fadeIn(8, 20)),
@@ -37,5 +37,5 @@ export const parts = {
   // popping in at full volume right as the kick dropped, which read as a
   // loudness surge even though the overall mix is actually quieter there
   stab: stab.apply(during([32, 64])).apply(fadeIn(32, 40)),
-  pad: pad.apply(fadeIn(24, 36)), // joins late, lands under the breakdown — a counterweight to the kick dropping out
+  pad: pad.apply(fadeIn(0, 4)), // opens the track — a few bars of atmosphere before the kick joins
 }
