@@ -26,13 +26,16 @@ separately.
 ```
 packages/
   core/        @d-studio-labs/core — engine, lib, superdirt (see below)
+  synths/      @d-studio-labs/synths — the shared filter-envelope SynthDef (d-modules.scd)
 examples/
   hello/       a minimal project that depends on @d-studio-labs/core
 ```
 
-`@d-studio-labs/synths` (a shared SynthDef library, separate from the engine)
-doesn't exist yet — it splits off `packages/core/superdirt/synths/` once
-there's enough in it to be its own package.
+`@d-studio-labs/synths` is a sibling package under the same npm scope, not a
+subpath of `core` — `core`'s `startup.scd` loads it via a relative path
+(`../../synths`) that resolves the same way whether you're in this monorepo
+or a real install, since both put same-scope packages side by side under
+`node_modules/@d-studio-labs/`.
 
 ## A project that depends on it
 
@@ -108,8 +111,9 @@ pattern while `d-studio play` runs. See `examples/hello/tracks/techno/index.js`.
 packages/core/
   engine/       the runtime: scheduling, MIDI in, OSC out, export, the CLI (cli.mjs)
   lib/          composition helpers tracks import (table above)
-  superdirt/    startup, master (glue/tape/limiter), space (ATK), spring, midi, record,
-                synths/d-modules.scd — the shared filter-envelope SynthDef
+  superdirt/    startup, master (glue/tape/limiter), space (ATK), spring, midi, record
+packages/synths/
+  d-modules.scd the shared filter-envelope SynthDef, loaded by core's startup.scd
 ```
 
 ## Environment
