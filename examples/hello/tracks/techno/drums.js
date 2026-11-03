@@ -45,4 +45,5 @@ const clap1 = sound('~ cp ~ cp').bank('RolandTR909').hpf(500).gain(0.5)
 const clap2 = sound('~ cp ~ cp').bank('RolandTR909').hpf(500).note(-1).gain(0.35).nudge(0.015)
 const clapRoom = sound('~ cp ~ cp').bank('RolandTR909').hpf(400).lpf(2500).room(1).roomsize(0.85).crush(5).gain(0.3)
 const texture = sound('~ noise2 ~ noise2').hpf(3000).gain(0.12)
-export const perc = stack(clap1, clap2, clapRoom, texture)
+// a brief roll every 16 bars — a mini turnaround so the loop isn't static
+export const perc = stack(clap1, clap2, clapRoom, texture).every(16, (p) => p.fast(2))
