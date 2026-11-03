@@ -8,7 +8,8 @@
     "dirt": "d-studio dirt",
     "dirt-install": "d-studio dirt-install",
     "export": "d-studio export",
-    "test": "d-studio test"
+    "test": "d-studio test",
+    "samples": "d-studio samples"
   },
   "dependencies": {
     "@d-studio-labs/core": "*"

@@ -70,14 +70,18 @@ project's `node_modules/.bin`:
 ```sh
 npm install
 d-studio check            # headless: parses every part, prints events per cycle (no audio)
-d-studio check -- hello   # just one track
+d-studio check -- techno  # just one track
 d-studio play             # the engine: Strudel's scheduler in Node → timed OSC to SuperDirt
-d-studio play -- hello --from 0 --to 16   # loop a bar range
-d-studio export -- hello  # render a track to exports/*.wav
+d-studio play -- techno --from 0 --to 16   # loop a bar range
+d-studio export -- techno  # render a track to exports/*.wav
 d-studio samples          # download drum machine samples (909 + 808 by default)
 d-studio ping             # one sound over OSC, no Strudel: is SuperDirt listening?
 d-studio dirt             # boots SuperDirt headless; wait for "SUPERDIRT READY"
 d-studio dirt-install     # one-time: SuperDirt + Dirt-Samples quarks
+d-studio test -- techno --from 42   # solo-renders each part, flags any effectively silent one
+                                     # (for an arranged track, point --from at a section where
+                                     # every part should be active — not bar 0, which may be a
+                                     # quiet intro by design)
 ```
 
 Each one needs SuperDirt running (see Dependencies, above) except `check`,
@@ -96,7 +100,7 @@ which needs nothing but Node.
 
 A track is a folder with an `index.js` exporting `BPM`, optional `BARS`, and
 `parts` (each key one lane). Saving any file a track imports hot-swaps the
-pattern while `d-studio play` runs. See `examples/hello/tracks/hello/index.js`.
+pattern while `d-studio play` runs. See `examples/hello/tracks/techno/index.js`.
 
 ## Layout
 

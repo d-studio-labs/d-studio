@@ -9,9 +9,15 @@ import { unlinkSync } from 'node:fs'
 import { loadTrack } from './track.mjs'
 import { PROJECT } from './project.mjs'
 
-const [trackName] = process.argv.slice(2)
+const [trackName, ...rest] = process.argv.slice(2)
+const flags = {}
+for (let i = 0; i < rest.length; i++) {
+  if (rest[i].startsWith('--')) flags[rest[i].slice(2)] = rest[++i]
+}
+const from = flags.from ?? '0'
 if (!trackName) {
-  console.log('usage: d-studio test <track>')
+  console.log('usage: d-studio test <track> [--from N]   # bar to check from (default 0) —')
+  console.log('  for an arranged track, point this at a section where every part should be active')
   process.exit(1)
 }
 
@@ -27,12 +33,17 @@ const cli = fileURLToPath(new URL('cli.mjs', import.meta.url))
 let failed = false
 let noFfmpeg = false
 
-console.log(`── ${trackName}: checking ${parts.length} part(s) for silence (< ${SILENCE_LUFS} LUFS) ──`)
+console.log(`── ${trackName}: checking ${parts.length} part(s) from bar ${from} for silence (< ${SILENCE_LUFS} LUFS) ──`)
+let first = true
 for (const part of parts) {
+  // SuperDirt's recorder needs a moment to settle between renders — back-to-back
+  // exports with no gap can race and capture the wrong window (seen firsthand)
+  if (!first) spawnSync('sleep', ['0.4'])
+  first = false
   const out = join(tmpdir(), `d-studio-test-${trackName}-${part}.wav`)
   const r = spawnSync(
     process.execPath,
-    [cli, 'export', trackName, '--solo', part, '--bars', '2', '--tail', '0', '--out', out],
+    [cli, 'export', trackName, '--solo', part, '--from', from, '--bars', '2', '--tail', '0', '--out', out],
     { encoding: 'utf8' },
   )
   if (r.status !== 0) {
