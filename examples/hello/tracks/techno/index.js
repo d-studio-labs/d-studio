@@ -18,6 +18,7 @@ import { bass } from './bass.js'
 import { pulse } from './pulse.js'
 import { lead } from './lead.js'
 import { stab } from './chords.js'
+import { pad } from './pad.js'
 
 export const BPM = 132
 export const BARS = 64
@@ -33,4 +34,5 @@ export const parts = {
   pulse: pulse.apply(fadeIn(8, 20)),
   lead: lead.apply(fadeIn(16, 28)),
   stab: stab.apply(during([32, 64])), // only from the breakdown on — a color for the return, not a constant
+  pad: pad.apply(fadeIn(24, 36)), // joins late, lands under the breakdown — a counterweight to the kick dropping out
 }
