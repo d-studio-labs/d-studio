@@ -57,11 +57,10 @@ my-music/
 **Not npm-installable — set up once on your machine:**
 
 - [SuperCollider](https://supercollider.github.io/) (`brew install --cask supercollider`, then open it once for Gatekeeper)
-- SuperDirt + Dirt-Samples quarks, one time: `sclang node_modules/@d-studio-labs/core/superdirt/install.scd`
+- SuperDirt + Dirt-Samples quarks, one time: `d-studio dirt-install`
 - Optional: **sc3-plugins** (extra SuperDirt UGens) and **ATK** (`Quarks.install("atk-sc3")`, for the ambisonic/binaural echoes — without it, `DIRT_SPACE` falls back to `off`)
 
-Boot it before `d-studio play`/`ping`/`export`:
-`sclang node_modules/@d-studio-labs/core/superdirt/startup.scd` — wait for `SUPERDIRT READY`. (A `d-studio dirt` command that wraps this is planned but not built yet.)
+Boot it before `d-studio play`/`ping`/`export`: `d-studio dirt` — wait for `SUPERDIRT READY`.
 
 ## The CLI
 
@@ -77,6 +76,8 @@ d-studio play -- hello --from 0 --to 16   # loop a bar range
 d-studio export -- hello  # render a track to exports/*.wav
 d-studio samples          # download drum machine samples (909 + 808 by default)
 d-studio ping             # one sound over OSC, no Strudel: is SuperDirt listening?
+d-studio dirt             # boots SuperDirt headless; wait for "SUPERDIRT READY"
+d-studio dirt-install     # one-time: SuperDirt + Dirt-Samples quarks
 ```
 
 Each one needs SuperDirt running (see Dependencies, above) except `check`,
