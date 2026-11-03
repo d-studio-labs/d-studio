@@ -1,0 +1,8 @@
+{
+  "name": "d-studio",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "packages/*"
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "name": "@d-studio-labs/core",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./mod": "./lib/mod.js",
+    "./arrange": "./lib/arrange.js",
+    "./drums": "./lib/drums.js",
+    "./fx": "./lib/fx.js",
+    "./space": "./lib/space.js",
+    "./midi": "./lib/midi.js"
+  },
+  "dependencies": {
+    "@julusian/midi": "^3.8.1",
+    "@strudel/core": "^1.2.6",
+    "@strudel/mini": "^1.2.6"
+  }
+}
