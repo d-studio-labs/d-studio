@@ -1,6 +1,6 @@
 # D-Studio
 
-Strudel without the browser editor. Your own editor is the source of truth,
+Strudel without the browser. Your own editor is the source of truth,
 SuperDirt makes the sound, Node schedules it in real time.
 
 ```
