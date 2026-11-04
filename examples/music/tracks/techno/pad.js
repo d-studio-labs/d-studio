@@ -1,51 +1,51 @@
 // ── Pad: a continuous, soft synth wash — counterbalances the kick + stab aggression ──
-// sc3-plugins is installed on this machine (confirmed — part of the original
-// d-studio setup).
+// `dstudiopad`: a new SynthDef in @d-studio-labs/synths (packages/synths/pad.scd)
+// — four detuned saws with slow organic wobble (LFNoise2, not a periodic LFO)
+// and a frequency-scaled lowpass. Same idea as the user's private `dpad`
+// synth, written fresh for the public package rather than copied — supersaw
+// and supertron both turned out to have built-in periodic LFOs that read as
+// "EBM pulsing" or literal stuttering; LFNoise2's smoothed-random drift has
+// no regular pulse to it at all.
 //
-// Back to `supersaw` (confirmed reliable — sustains correctly) rather than
-// `supertron`, which turned out to use a self-modulating Pulse oscillator
-// (literally pulses/stutters by design, especially at low pitch — that's
-// the "da da da da" character, not a bug in how it was played).
-// supersaw's own "EBM" quality was its internal LFO sweeping the filter
-// (`lfo` param, default 1) — set to 0 here to stop that movement, plus a
-// much lower resonance, for something genuinely static and soft.
+// Envelope gotcha (same as every SuperDirt synth): no attack/release/clip
+// params, just `sustain` in seconds (not a 0-1 fraction). 4 bars at 132 BPM
+// = 7.27s, so sustain is set to just under that.
 //
-// Same envelope gotcha either way: no attack/release/clip params, just
-// `sustain` in seconds (not a 0-1 fraction) — confirmed in the SynthDef.
-// 4 bars at 132 BPM = 7.27s, so sustain is set to just under that.
+// Progression: C -> Bb -> Ab -> G, a descending bassline, 4 bars each, 16
+// bars total before it repeats. Root and fifth, a tempo-synced delay for
+// fluidity, light room — not the heavy wash that read as "church" earlier.
 //
-// Same progression as before: C -> Bb -> Ab -> G, a descending bassline, 4
-// bars each, 16 bars total before it repeats. Root and fifth, soft filter.
+// An octave up from the first attempt (c2-g2, 49-98 Hz) — that sat right on
+// top of the kick's rumble AND the bass's own c1 root, three things fighting
+// for the same sub pocket. c3-g3 gives it its own register instead.
 import { note, stack } from '@strudel/core'
 
 const HOLD = 7 // seconds, just under a 4-bar slot at 132 BPM (7.27s)
 
-// a tempo-synced delay (dotted-eighth-ish) to smooth the sustain into
-// something more fluid, without the "church" wash a big room caused earlier
-const root = note('<c2 bb1 ab1 g1>/4')
-  .sound('supersaw')
+// delayfeedback was 0.35 — fine for a short pluck, but a continuously fed
+// signal (this sustains for 7s) keeps re-feeding the loop and builds up to
+// roughly 1/(1-feedback) louder than the dry signal, which was cracking
+// against the master bus. Lowered across pad/arp/pulse together.
+const root = note('<c3 bb2 ab2 g2>/4')
+  .sound('dstudiopad')
   .sustain(HOLD)
-  .lfo(0)
-  .resonance(0.05)
-  .lpf(600)
+  .detune(0.12)
   .delay(0.3)
   .delaytime(0.28)
-  .delayfeedback(0.35)
-  .room(0.2)
+  .delayfeedback(0.15)
+  .room(0.5)
   .roomsize(0.6)
-  .gain(0.24)
+  .gain(0.26)
 
-const fifth = note('<g2 f2 eb2 d2>/4')
-  .sound('supersaw')
+const fifth = note('<g3 f3 eb3 d3>/4')
+  .sound('dstudiopad')
   .sustain(HOLD)
-  .lfo(0)
-  .resonance(0.05)
-  .lpf(600)
+  .detune(0.12)
   .delay(0.3)
   .delaytime(0.28)
-  .delayfeedback(0.35)
-  .room(0.2)
+  .delayfeedback(0.15)
+  .room(0.5)
   .roomsize(0.6)
-  .gain(0.18)
+  .gain(0.2)
 
 export const pad = stack(root, fifth)

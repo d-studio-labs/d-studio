@@ -5,4 +5,6 @@
 // A short, tight delay for roll, no reverb wash.
 import { sound } from '@strudel/core'
 
-export const pulse = sound('click(5,16)').hpf(2000).delay(0.15).delaytime(0.125).delayfeedback(0.25).gain(0.3)
+// delayfeedback was 0.25 — lowered along with pad/arp (same cause: a
+// continuously-fed delay loop building up louder than the dry signal)
+export const pulse = sound('click(5,16)').hpf(2000).delay(0.15).delaytime(0.125).delayfeedback(0.12).gain(0.3)
