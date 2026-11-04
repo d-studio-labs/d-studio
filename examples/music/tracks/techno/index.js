@@ -32,10 +32,13 @@ const { during, env } = arrangement(BARS)
 // sudden full-volume kick after 2 quiet bars of just pad+arp+hats. fadeIn()
 // only ramps once (not on repeats), so this needs the looping env() instead
 const kickLevel = env([0, 0], [2, 0], [2.25, 1], [32, 1], [40, 0], [40.25, 1], [64, 1])
+// hats enters at the same instant as the kick — same ramp, but no breakdown
+// dip (hats is the anchor, stays on through 32-40 unlike the kick)
+const hatsLevel = env([0, 0], [2, 0], [2.25, 1], [64, 1])
 
 export const parts = {
   kick: kick.apply(during([2, 32], [40, 64])).mul(gain(kickLevel)),
-  hats: hats.apply(fadeIn(0, 2)),
+  hats: hats.apply(during([2, 64])).mul(gain(hatsLevel)),
   // perc: perc.apply(fadeIn(0, 8)),
   bass: bass.apply(fadeIn(4, 16)),
   //pulse: pulse.apply(fadeIn(8, 20)),
