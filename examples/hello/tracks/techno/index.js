@@ -19,6 +19,7 @@ import { pulse } from './pulse.js'
 import { lead } from './lead.js'
 import { stab } from './chords.js'
 import { pad } from './pad.js'
+import { arp } from './arp.js'
 
 export const BPM = 132
 export const BARS = 64
@@ -38,4 +39,5 @@ export const parts = {
   // loudness surge even though the overall mix is actually quieter there
   stab: stab.apply(during([32, 64])).apply(fadeIn(32, 40)),
   pad: pad.apply(fadeIn(0, 4)), // opens the track — a few bars of atmosphere before the kick joins
+  arp: arp.apply(fadeIn(8, 16)), // the pad's rhythmic companion, joins once the groove is established
 }

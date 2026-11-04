@@ -20,12 +20,17 @@ import { note, stack } from '@strudel/core'
 
 const HOLD = 7 // seconds, just under a 4-bar slot at 132 BPM (7.27s)
 
+// a tempo-synced delay (dotted-eighth-ish) to smooth the sustain into
+// something more fluid, without the "church" wash a big room caused earlier
 const root = note('<c2 bb1 ab1 g1>/4')
   .sound('supersaw')
   .sustain(HOLD)
   .lfo(0)
   .resonance(0.05)
   .lpf(600)
+  .delay(0.3)
+  .delaytime(0.28)
+  .delayfeedback(0.35)
   .room(0.2)
   .roomsize(0.6)
   .gain(0.24)
@@ -36,6 +41,9 @@ const fifth = note('<g2 f2 eb2 d2>/4')
   .lfo(0)
   .resonance(0.05)
   .lpf(600)
+  .delay(0.3)
+  .delaytime(0.28)
+  .delayfeedback(0.35)
   .room(0.2)
   .roomsize(0.6)
   .gain(0.18)
