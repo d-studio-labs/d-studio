@@ -85,6 +85,7 @@ d-studio test -- techno --from 42   # solo-renders each part, flags any effectiv
                                      # (for an arranged track, point --from at a section where
                                      # every part should be active — not bar 0, which may be a
                                      # quiet intro by design)
+d-studio display          # lanes + playhead in the browser, following d-studio play's clock
 ```
 
 Each one needs SuperDirt running (see Dependencies, above) except `check`,
@@ -124,4 +125,4 @@ packages/synths/
 | `DIRT_PORT`      | `57120`                                                   | where the engine sends OSC                        |
 | `DIRT_SPACE`     | `binaural`                                                | `binaural`, `stereo` or `off`                      |
 | `SCLANG`         | `/Applications/SuperCollider.app/Contents/MacOS/sclang`   | where sclang lives                                 |
-| `STUDIO_URL`     | `http://localhost:5173`                                   | the dev server the engine posts its clock to (display, not wired up here yet) |
+| `STUDIO_URL`     | `http://localhost:5173`                                   | where `d-studio display`'s dev server runs; the engine posts its clock there |

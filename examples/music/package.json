@@ -10,12 +10,9 @@
     "export": "d-studio export",
     "test": "d-studio test",
     "samples": "d-studio samples",
-    "dev": "vite"
+    "display": "d-studio display"
   },
   "dependencies": {
     "@d-studio-labs/core": "*"
-  },
-  "devDependencies": {
-    "vite": "^7.0.0"
   }
 }

@@ -3,6 +3,10 @@
 import './boot.js'
 import { createViz } from './viz.js'
 import { songTime } from './time.js'
+// the project's tracks/ (engine/vite-plugin.js's virtual module — this page
+// lives in the package, not next to the project's tracks/, so a plain
+// import.meta.glob can't see them)
+import { TRACKS } from 'virtual:d-studio-tracks'
 
 const $ = (sel) => document.querySelector(sel)
 const status = {
@@ -13,11 +17,6 @@ const status = {
   time: $('#time'),
   msg: $('#msg'),
 }
-
-// ── Tracks: every tracks/<name>/index.js, loaded when the engine plays it ──
-const TRACKS = Object.fromEntries(
-  Object.entries(import.meta.glob('/tracks/*/index.js')).map(([file, load]) => [file.split('/')[2], load]),
-)
 
 // ── The engine's clock (POSTed to engine/vite-plugin.js once a second) ──
 // gone after 3 s of silence: the engine was killed rather than stopped
