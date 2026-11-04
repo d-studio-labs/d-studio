@@ -16,7 +16,7 @@ dependency.
 
 Private, early. Not published to npm (or any registry) yet — right now the
 only way to use `@d-studio-labs/core` is from inside this monorepo via npm
-workspaces. `examples/hello` is a real consumer of it (not a copy of its code)
+workspaces. `examples/music` is a real consumer of it (not a copy of its code)
 and is the best place to see the intended shape of a project that depends on
 it. Publishing (likely GitHub Packages first, scoped to this org) is tracked
 separately.
@@ -28,7 +28,7 @@ packages/
   core/        @d-studio-labs/core — engine, lib, superdirt (see below)
   synths/      @d-studio-labs/synths — the shared filter-envelope SynthDef (d-modules.scd)
 examples/
-  hello/       a minimal project that depends on @d-studio-labs/core
+  music/       a minimal project that depends on @d-studio-labs/core
 ```
 
 `@d-studio-labs/synths` is a sibling package under the same npm scope, not a
@@ -48,7 +48,7 @@ my-music/
   exports/            ← gitignored, from `d-studio export`
 ```
 
-`examples/hello` is exactly this shape — read it before writing your own.
+`examples/music` is exactly this shape — read it before writing your own.
 
 ## Dependencies
 
@@ -103,7 +103,7 @@ which needs nothing but Node.
 
 A track is a folder with an `index.js` exporting `BPM`, optional `BARS`, and
 `parts` (each key one lane). Saving any file a track imports hot-swaps the
-pattern while `d-studio play` runs. See `examples/hello/tracks/techno/index.js`.
+pattern while `d-studio play` runs. See `examples/music/tracks/techno/index.js`.
 
 ## Layout
 
