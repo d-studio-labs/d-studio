@@ -173,6 +173,9 @@ packages/synths/
   d-modules.scd the shared filter-envelope SynthDef, loaded by core's startup.scd
 packages/create/
   create.sh     the scaffolder (see "Scaffold one" above)
+  sync.sh       copies tracks/{hello,velvet} + synths/d-studio.scd from
+                examples/playground (source of truth) into templates/project/ —
+                run after editing a track there, before testing/publishing
   templates/project/   what it copies — a full standalone project, own package.json
 ```
 
