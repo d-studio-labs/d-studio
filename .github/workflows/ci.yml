@@ -1,0 +1,67 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: install & check (engine + examples)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run format:check
+      # audio-free sanity check: parses every track in the example project
+      # through the real engine (no SuperCollider/SuperDirt needed)
+      - run: npm run check --workspace examples/playground
+
+  scaffold:
+    name: scaffold a new project (create.sh)
+    runs-on: ubuntu-latest
+    needs: check
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+      # exercises packages/create/create.sh exactly as a new user would,
+      # against this branch's own repo/ref (so a PR tests its own template),
+      # but skips the auto npm install — @d-studio-labs/core and .../synths
+      # get pointed at this checkout below instead of the published tags,
+      # so this job needs no access to those (private) package repos and
+      # tests the PR's own engine code rather than a possibly-stale release
+      - name: scaffold via create.sh
+        env:
+          D_STUDIO_REPO: ${{ github.event.pull_request.head.repo.full_name || github.repository }}
+          D_STUDIO_BRANCH: ${{ github.head_ref || github.ref_name }}
+          D_STUDIO_SKIP_INSTALL: '1'
+        run: sh packages/create/create.sh ci-scaffold-test
+      - name: pack this checkout's core + synths
+        run: |
+          mkdir -p /tmp/d-studio-pack
+          npm pack --workspace packages/core --workspace packages/synths --pack-destination /tmp/d-studio-pack
+      - name: point the scaffolded project at the packed tarballs
+        working-directory: ci-scaffold-test
+        run: |
+          core_tgz=$(ls /tmp/d-studio-pack/d-studio-labs-core-*.tgz)
+          synths_tgz=$(ls /tmp/d-studio-pack/d-studio-labs-synths-*.tgz)
+          npm pkg set "dependencies.@d-studio-labs/core=file:$core_tgz"
+          npm pkg set "dependencies.@d-studio-labs/synths=file:$synths_tgz"
+      - name: install, lint, format-check and sanity-check the scaffolded project
+        working-directory: ci-scaffold-test
+        run: |
+          npm install
+          npm run lint
+          npm run format:check
+          npm run check

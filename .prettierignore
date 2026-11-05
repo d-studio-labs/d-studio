@@ -1,0 +1,7 @@
+node_modules/
+package-lock.json
+exports/
+samples/
+packages/create/templates/
+# SuperCollider source — prettier has no parser for it and misdetects it as markdown
+*.scd

@@ -33,7 +33,9 @@ const cli = fileURLToPath(new URL('cli.mjs', import.meta.url))
 let failed = false
 let noFfmpeg = false
 
-console.log(`── ${trackName}: checking ${parts.length} part(s) from bar ${from} for silence (< ${SILENCE_LUFS} LUFS) ──`)
+console.log(
+  `── ${trackName}: checking ${parts.length} part(s) from bar ${from} for silence (< ${SILENCE_LUFS} LUFS) ──`,
+)
 let first = true
 for (const part of parts) {
   // SuperDirt's recorder needs a moment to settle between renders — back-to-back
