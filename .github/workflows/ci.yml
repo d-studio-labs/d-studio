@@ -35,23 +35,33 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: lts/*
-      # the scaffolded project's package.json pulls @d-studio-labs/core and
-      # @d-studio-labs/synths via npm's `github:` shorthand, which tries SSH
-      # before HTTPS — this runner has no SSH key, so rewrite to HTTPS
-      - name: use HTTPS for github npm deps (no SSH key on this runner)
-        run: git config --global url."https://github.com/".insteadOf ssh://git@github.com/
       # exercises packages/create/create.sh exactly as a new user would,
-      # against this branch's own repo/ref (so a PR tests its own template
-      # and version pins, not whatever's currently on main)
+      # against this branch's own repo/ref (so a PR tests its own template),
+      # but skips the auto npm install — @d-studio-labs/core and .../synths
+      # get pointed at this checkout below instead of the published tags,
+      # so this job needs no access to those (private) package repos and
+      # tests the PR's own engine code rather than a possibly-stale release
       - name: scaffold via create.sh
         env:
           D_STUDIO_REPO: ${{ github.event.pull_request.head.repo.full_name || github.repository }}
           D_STUDIO_BRANCH: ${{ github.head_ref || github.ref_name }}
+          D_STUDIO_SKIP_INSTALL: '1'
         run: sh packages/create/create.sh ci-scaffold-test
-      # create.sh already ran `npm install` for us
-      - name: lint, format-check and sanity-check the scaffolded project
+      - name: pack this checkout's core + synths
+        run: |
+          mkdir -p /tmp/d-studio-pack
+          npm pack --workspace packages/core --workspace packages/synths --pack-destination /tmp/d-studio-pack
+      - name: point the scaffolded project at the packed tarballs
         working-directory: ci-scaffold-test
         run: |
+          core_tgz=$(ls /tmp/d-studio-pack/d-studio-labs-core-*.tgz)
+          synths_tgz=$(ls /tmp/d-studio-pack/d-studio-labs-synths-*.tgz)
+          npm pkg set "dependencies.@d-studio-labs/core=file:$core_tgz"
+          npm pkg set "dependencies.@d-studio-labs/synths=file:$synths_tgz"
+      - name: install, lint, format-check and sanity-check the scaffolded project
+        working-directory: ci-scaffold-test
+        run: |
+          npm install
           npm run lint
           npm run format:check
           npm run check

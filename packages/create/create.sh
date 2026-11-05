@@ -11,6 +11,11 @@
 #
 # tests a branch before it's merged to main (fetch the script itself from
 # that branch too, like the example above, or it'll run main's version)
+#
+#   D_STUDIO_SKIP_INSTALL=1 sh create.sh my-track
+#
+# scaffolds without running npm install — for CI, to patch dependencies
+# (e.g. point them at a local checkout) before installing
 set -eu
 
 REPO="${D_STUDIO_REPO:-d-studio-labs/d-studio}"
@@ -58,8 +63,10 @@ if sed --version >/dev/null 2>&1; then sed_i() { sed -i "$@"; }; else sed_i() { 
 sed_i "s|__PROJECT_NAME__|$pkgname|" "$name/package.json" "$name/README.md"
 sed_i "s|__AUTHOR__|$author|; s|__YEAR__|$year|" "$name/LICENSE"
 
-echo "→ npm install"
-(cd "$name" && npm install)
+if [ -z "${D_STUDIO_SKIP_INSTALL:-}" ]; then
+  echo "→ npm install"
+  (cd "$name" && npm install)
+fi
 
 cat <<EOF
 
