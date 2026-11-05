@@ -14,16 +14,63 @@ dependency.
 
 ## Status
 
-Private, early. Not published to npm (or any registry) yet — right now the
-only way to use `@d-studio-labs/core` is from inside this monorepo via npm
-workspaces. `examples/playground` is a real consumer of it (not a copy of its code)
-and is the best place to see the intended shape of a project that depends on
-it. Publishing (likely GitHub Packages first, scoped to this org) is tracked
-separately.
+Early, but public and usable today. `@d-studio-labs/core` and
+`@d-studio-labs/synths` aren't on the npm registry yet, but they're real,
+tagged, installable dependencies (see "Make your own" below) — using them
+doesn't require this monorepo. `examples/playground` is a real consumer of
+it too (not a copy of its code) and is the best place to see the intended
+shape of a project that depends on it. A proper npm registry publish
+(likely GitHub Packages first, scoped to this org) is tracked separately.
+
+## Make your own
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/d-studio-labs/d-studio/main/packages/create/create.sh | sh -s my-track
+```
+
+One command, nothing to clone first — just `curl`, `tar`, `sed` and `npm` on
+your machine. Leave off `-s my-track` and it prompts for a name instead
+(only when run from a terminal — a name is required in a non-interactive
+context like CI).
+
+What it does: downloads `packages/create/templates/project/` from this
+repo's `main` branch, fills in the project name everywhere it appears, fills
+in your git `user.name` and the current year into `LICENSE`, then runs `npm
+install`. Refuses to run if a directory with that name already exists.
+
+What you get: `my-track/` matching the shape in
+["A project that depends on it"](#a-project-that-depends-on-it) below —
+ESLint/Prettier already wired up, an all-rights-reserved `LICENSE` to swap
+out if you want something more permissive, and two starter tracks:
+`tracks/hello/` (minimal, delete once you've got the hang of it) and
+`tracks/velvet/` (a fuller, fully-arranged example — see its own README).
+`tracks/.default` is set to `velvet`, so a bare `npm run play` plays that
+one.
+
+It finishes by printing the same one-time setup as
+[Try it](#try-it-examplesplayground) below:
+
+```
+cd my-track
+npm run dirt-install   # one-time: SuperCollider quarks (needs SuperCollider installed)
+npm run samples        # download drum machine samples
+npm run dirt           # boot SuperDirt; wait for "SUPERDIRT READY"
+npm run play           # (in another terminal) start the clock
+```
+
+**Maintaining the template:** `tracks/hello/`, `tracks/velvet/` and
+`synths/d-studio.scd` in the template are hand-copies of the same files in
+`examples/playground` (the source of truth for both). Edit a track in
+`examples/playground`, then run `packages/create/sync.sh` from the repo
+root to copy those changes into the template before publishing — it leaves
+template-only files (`tracks/velvet/README.md`, the template's own
+`package.json`/`LICENSE`) alone, and doesn't delete anything, so check `git
+status` after if you removed a file on the playground side.
 
 ## Try it: `examples/playground`
 
-The fastest way to hear the engine, from inside this monorepo:
+Prefer to poke at a working example inside this repo first? The fastest way
+to hear the engine, from inside this monorepo:
 
 ```sh
 npm install                      # from the repo root, once
@@ -85,55 +132,8 @@ my-music/
   exports/            ← gitignored, from `d-studio export`
 ```
 
-`examples/playground` is exactly this shape — read it before writing your own.
-
-### Scaffold one
-
-```sh
-curl -fsSL https://raw.githubusercontent.com/d-studio-labs/d-studio/main/packages/create/create.sh | sh -s my-track
-```
-
-Leave off `-s my-track` and it prompts for a name instead (only when run
-from a terminal — a name is required in a non-interactive context like CI).
-No local clone of this repo needed: just `curl`, `tar`, `sed` and `npm` on
-your machine.
-
-What it does: downloads `packages/create/templates/project/` from this repo
-(the `main` branch's current tarball — not your own uncommitted changes,
-even if you're working inside a clone of this repo), fills in the project
-name everywhere it appears, fills in your git `user.name` and the current
-year into `LICENSE`, then runs `npm install`. It refuses to run if a
-directory called `my-track` already exists — pick a different name or
-remove it first.
-
-What you get: `my-track/` matching the shape in
-["A project that depends on it"](#a-project-that-depends-on-it) above —
-ESLint/Prettier already wired up, an all-rights-reserved `LICENSE` to swap
-out if you want something more permissive, and two starter tracks:
-`tracks/hello/` (minimal, delete once you've got the hang of it) and
-`tracks/velvet/` (a fuller, fully-arranged example — see its own README).
-`tracks/.default` is set to `velvet`, so a bare `npm run play` plays that
-one.
-
-It finishes by printing the same one-time setup as
-[Try it](#try-it-examplesplayground) above:
-
-```
-cd my-track
-npm run dirt-install   # one-time: SuperCollider quarks (needs SuperCollider installed)
-npm run samples        # download drum machine samples
-npm run dirt           # boot SuperDirt; wait for "SUPERDIRT READY"
-npm run play           # (in another terminal) start the clock
-```
-
-**Maintaining the template:** `tracks/hello/`, `tracks/velvet/` and
-`synths/d-studio.scd` in the template are hand-copies of the same files in
-`examples/playground` (the source of truth for both). Edit a track in
-`examples/playground`, then run `packages/create/sync.sh` from the repo
-root to copy those changes into the template before publishing —
-it leaves template-only files (`tracks/velvet/README.md`, the template's own
-`package.json`/`LICENSE`) alone, and doesn't delete anything, so check `git
-status` after if you removed a file on the playground side.
+`examples/playground` is exactly this shape — read it before writing your
+own, or see ["Make your own"](#make-your-own) above to generate it.
 
 ## Dependencies
 
@@ -205,7 +205,7 @@ packages/core/
 packages/synths/
   d-modules.scd the shared filter-envelope SynthDef, loaded by core's startup.scd
 packages/create/
-  create.sh     the scaffolder (see "Scaffold one" above)
+  create.sh     the scaffolder (see "Make your own" above)
   sync.sh       copies tracks/{hello,velvet} + synths/d-studio.scd from
                 examples/playground (source of truth) into templates/project/ —
                 run after editing a track there, before testing/publishing
