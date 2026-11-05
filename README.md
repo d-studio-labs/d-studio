@@ -90,11 +90,14 @@ my-music/
 curl -fsSL https://raw.githubusercontent.com/d-studio-labs/d-studio/main/scripts/create.sh | sh -s my-track
 ```
 
-Downloads `templates/project/` from this repo, fills in the name, and runs
-`npm install` — `my-track/` comes out matching the shape above, with
-ESLint/Prettier already wired up and a two-part starter track
-(`tracks/hello/`) to replace. Refuses to overwrite an existing directory. No
-local clone of this repo needed first.
+Downloads `templates/project/` from this repo, fills in the name (and your
+git `user.name` + the year, into `LICENSE`), and runs `npm install` —
+`my-track/` comes out matching the shape above, with ESLint/Prettier already
+wired up, an all-rights-reserved `LICENSE` to swap out if you want
+something more permissive, and two starter tracks: `tracks/hello/` (minimal,
+delete once you've got the hang of it) and `tracks/velvet/` (a fuller,
+fully-arranged example — see its own README). Refuses to overwrite an
+existing directory. No local clone of this repo needed first.
 
 ## Dependencies
 
