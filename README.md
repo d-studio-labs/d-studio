@@ -93,14 +93,47 @@ my-music/
 curl -fsSL https://raw.githubusercontent.com/d-studio-labs/d-studio/main/packages/create/create.sh | sh -s my-track
 ```
 
-Downloads `packages/create/templates/project/` from this repo, fills in the name (and your
-git `user.name` + the year, into `LICENSE`), and runs `npm install` —
-`my-track/` comes out matching the shape above, with ESLint/Prettier already
-wired up, an all-rights-reserved `LICENSE` to swap out if you want
-something more permissive, and two starter tracks: `tracks/hello/` (minimal,
-delete once you've got the hang of it) and `tracks/velvet/` (a fuller,
-fully-arranged example — see its own README). Refuses to overwrite an
-existing directory. No local clone of this repo needed first.
+Leave off `-s my-track` and it prompts for a name instead (only when run
+from a terminal — a name is required in a non-interactive context like CI).
+No local clone of this repo needed: just `curl`, `tar`, `sed` and `npm` on
+your machine.
+
+What it does: downloads `packages/create/templates/project/` from this repo
+(the `main` branch's current tarball — not your own uncommitted changes,
+even if you're working inside a clone of this repo), fills in the project
+name everywhere it appears, fills in your git `user.name` and the current
+year into `LICENSE`, then runs `npm install`. It refuses to run if a
+directory called `my-track` already exists — pick a different name or
+remove it first.
+
+What you get: `my-track/` matching the shape in
+["A project that depends on it"](#a-project-that-depends-on-it) above —
+ESLint/Prettier already wired up, an all-rights-reserved `LICENSE` to swap
+out if you want something more permissive, and two starter tracks:
+`tracks/hello/` (minimal, delete once you've got the hang of it) and
+`tracks/velvet/` (a fuller, fully-arranged example — see its own README).
+`tracks/.default` is set to `velvet`, so a bare `npm run play` plays that
+one.
+
+It finishes by printing the same one-time setup as
+[Try it](#try-it-examplesplayground) above:
+
+```
+cd my-track
+npm run dirt-install   # one-time: SuperCollider quarks (needs SuperCollider installed)
+npm run samples        # download drum machine samples
+npm run dirt           # boot SuperDirt; wait for "SUPERDIRT READY"
+npm run play           # (in another terminal) start the clock
+```
+
+**Maintaining the template:** `tracks/hello/`, `tracks/velvet/` and
+`synths/d-studio.scd` in the template are hand-copies of the same files in
+`examples/playground` (the source of truth for both). Edit a track in
+`examples/playground`, then run `packages/create/sync.sh` from the repo
+root to copy those changes into the template before publishing —
+it leaves template-only files (`tracks/velvet/README.md`, the template's own
+`package.json`/`LICENSE`) alone, and doesn't delete anything, so check `git
+status` after if you removed a file on the playground side.
 
 ## Dependencies
 
