@@ -1,11 +1,13 @@
 // Headless engine: Node schedules, SuperDirt plays. `npm run play [-- fog]`
+// With no track named: tracks/.default if the project has one, else
+// whichever track folder sorts first alphabetically.
 // Saves hot-swap the pattern; events go out LATENCY ahead (DIRT_LATENCY=0.3 to override).
 // `--from 96 --to 128` loops just those bars (from inclusive, to exclusive).
 // MIDI keys play through the part a track wraps in midi(), knobs feed cc() (lib/midi.js).
 import { Cyclist, stack, silence, setTime } from '@strudel/core'
 import { miniAllStrings } from '@strudel/mini'
 import { performance } from 'node:perf_hooks'
-import { readdir } from 'node:fs/promises'
+import { readdir, readFile } from 'node:fs/promises'
 import { watch } from 'node:fs'
 import { message, bundle, udp } from './osc.mjs'
 import { toDirt } from './dirt.mjs'
@@ -36,8 +38,13 @@ if (loop && !(loop.to > loop.from)) {
   process.exit(1)
 }
 
+// with no track named on the command line: tracks/.default (one line, the
+// track's folder name), if a project sets one, else whichever sorts first
 const trackName =
   positional[0] ??
+  (await readFile(new URL('.default', TRACKS), 'utf8')
+    .then((s) => s.trim())
+    .catch(() => null)) ??
   (await readdir(TRACKS, { withFileTypes: true }))
     .filter((d) => d.isDirectory())
     .map((d) => d.name)

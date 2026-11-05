@@ -1,0 +1,10 @@
+node_modules
+dist
+*.wav
+.DS_Store
+*.aiff
+*.log
+.env*
+.claude/settings.local.json
+samples/
+exports/
