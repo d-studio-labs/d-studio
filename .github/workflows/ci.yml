@@ -35,6 +35,11 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: lts/*
+      # the scaffolded project's package.json pulls @d-studio-labs/core and
+      # @d-studio-labs/synths via npm's `github:` shorthand, which tries SSH
+      # before HTTPS — this runner has no SSH key, so rewrite to HTTPS
+      - name: use HTTPS for github: npm deps (no SSH key on this runner)
+        run: git config --global url."https://github.com/".insteadOf ssh://git@github.com/
       # exercises packages/create/create.sh exactly as a new user would,
       # against this branch's own repo/ref (so a PR tests its own template
       # and version pins, not whatever's currently on main)
