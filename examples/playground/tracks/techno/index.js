@@ -38,12 +38,12 @@ const kickLevel = env([0, 0], [2, 0], [2.25, 1], [32, 1], [40, 0], [40.25, 1], [
 const hatsLevel = env([0, 0], [4, 0], [4.25, 1], [64, 1])
 
 export const parts = {
-  //kick: kick.apply(during([2, 32], [40, 64])).mul(gain(kickLevel)),
-  //hats: hats.apply(during([4, 64])).mul(gain(hatsLevel)),
-  // perc: perc.apply(fadeIn(0, 8)),
-  bass: bass.apply(fadeIn(4, 16)),
+  kick: kick.apply(during([2, 32], [40, 64])).mul(gain(kickLevel)),
+  hats: hats.apply(during([4, 64])).mul(gain(hatsLevel)),
+  perc: perc.apply(fadeIn(0, 8)),
+  // bass: bass.apply(fadeIn(4, 16)),
   //pulse: pulse.apply(fadeIn(8, 20)),
   //lead: lead.apply(fadeIn(16, 28)),
   //stab: stab.apply(during([32, 64])).apply(fadeIn(32, 40)),
-  // pad: pad.apply(fadeIn(0, 4)),
+  pad: pad.apply(fadeIn(0, 4)),
 }
