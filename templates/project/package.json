@@ -1,0 +1,29 @@
+{
+  "name": "__PROJECT_NAME__",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "check": "d-studio check",
+    "play": "d-studio play",
+    "dirt": "d-studio dirt",
+    "dirt-install": "d-studio dirt-install",
+    "export": "d-studio export",
+    "test": "d-studio test",
+    "samples": "d-studio samples",
+    "display": "d-studio display",
+    "lint": "eslint -c .eslint.config.js .",
+    "lint:fix": "eslint -c .eslint.config.js . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "dependencies": {
+    "@d-studio-labs/core": "github:d-studio-labs/core#v0.1.0",
+    "@d-studio-labs/synths": "github:d-studio-labs/synths#v0.1.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.5",
+    "eslint": "^9.39.5",
+    "globals": "^17.13.0",
+    "prettier": "^3.9.10"
+  }
+}
