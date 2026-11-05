@@ -16,10 +16,44 @@ dependency.
 
 Private, early. Not published to npm (or any registry) yet — right now the
 only way to use `@d-studio-labs/core` is from inside this monorepo via npm
-workspaces. `examples/music` is a real consumer of it (not a copy of its code)
+workspaces. `examples/playground` is a real consumer of it (not a copy of its code)
 and is the best place to see the intended shape of a project that depends on
 it. Publishing (likely GitHub Packages first, scoped to this org) is tracked
 separately.
+
+## Try it: `examples/playground`
+
+The fastest way to hear the engine, from inside this monorepo:
+
+```sh
+npm install                      # from the repo root, once
+d-studio dirt-install             # one-time: SuperDirt + Dirt-Samples quarks
+cd examples/playground
+npm run samples                  # download drum machine samples (909 + 808)
+npm run dirt                     # boots SuperDirt; wait for "SUPERDIRT READY"
+```
+
+In a second terminal:
+
+```sh
+cd examples/playground
+npm run play                     # starts the clock, plays tracks/techno
+```
+
+Open `tracks/techno/*.js` in your editor and save — the pattern hot-swaps
+while `play` keeps running, the clock never stops. Try muting/unmuting a line
+in `tracks/techno/index.js`'s `parts` object, or nudging a `.gain()`/`.lpf()`
+value, and listen to it change live.
+
+Other commands, run from inside `examples/playground/` (the same ones listed
+under [The CLI](#the-cli) below, scoped to this one project):
+
+```sh
+npm run check                     # parses every part, prints events — no audio needed
+npm run export -- techno          # renders to exports/techno.wav
+npm run test -- techno --from 8   # flags any part that's effectively silent
+npm run display                   # lanes + playhead in the browser
+```
 
 ## Packages
 
@@ -28,7 +62,7 @@ packages/
   core/        @d-studio-labs/core — engine, lib, superdirt (see below)
   synths/      @d-studio-labs/synths — the shared filter-envelope SynthDef (d-modules.scd)
 examples/
-  music/       a minimal project that depends on @d-studio-labs/core
+  playground/  a minimal project that depends on @d-studio-labs/core
 ```
 
 `@d-studio-labs/synths` is a sibling package under the same npm scope, not a
@@ -48,7 +82,7 @@ my-music/
   exports/            ← gitignored, from `d-studio export`
 ```
 
-`examples/music` is exactly this shape — read it before writing your own.
+`examples/playground` is exactly this shape — read it before writing your own.
 
 ## Dependencies
 
@@ -104,7 +138,7 @@ which needs nothing but Node.
 
 A track is a folder with an `index.js` exporting `BPM`, optional `BARS`, and
 `parts` (each key one lane). Saving any file a track imports hot-swaps the
-pattern while `d-studio play` runs. See `examples/music/tracks/techno/index.js`.
+pattern while `d-studio play` runs. See `examples/playground/tracks/techno/index.js`.
 
 ## Layout
 

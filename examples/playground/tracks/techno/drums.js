@@ -13,12 +13,28 @@ import { drift } from '@d-studio-labs/core/mod'
 //    orbit, sidechain-ducked by dry+sub on every hit so it pumps, not pools
 // every 16 bars, the dry hit gets noticeably crushed for that one bar only —
 // a textural accent, not a constant; same hits, same count, just dirtier
+//
+// also ducks orbit 2 (pad's) on every hit — pad shares no orbit isolation
+// from the kick otherwise, so its sustained saw content coincides with the
+// kick's transient right in the master bus's shared tanh saturator. A
+// shallow, quick-recovering dip (unlike the deep duck on the reverb return,
+// which can go fully silent) just makes room for the hit without gutting pad
+//
 const dry = sound('bd*4')
   .bank('RolandTR909')
   .gain(0.95)
-  .duckorbit('1')
+  .duckorbit([1, 2])
+  .duckdepth([1, 0.35])
+  .duckattack([0.15, 0.2])
   .every(16, (p) => p.crush(11))
-const sub = sound('bd*4').bank('RolandTR909').note(-12).lpf(100).gain(0.6).duckorbit('1')
+const sub = sound('bd*4')
+  .bank('RolandTR909')
+  .note(-12)
+  .lpf(100)
+  .gain(0.6)
+  .duckorbit([1, 2])
+  .duckdepth([1, 0.35])
+  .duckattack([0.15, 0.2])
 const reverbReturn = sound('bd*4')
   .bank('RolandTR909')
   .hpf(120)
