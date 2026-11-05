@@ -1,5 +1,7 @@
 # D-Studio
 
+[![CI](https://github.com/d-studio-labs/d-studio/actions/workflows/ci.yml/badge.svg)](https://github.com/d-studio-labs/d-studio/actions/workflows/ci.yml)
+
 Strudel without the browser. Your own editor is the source of truth,
 SuperDirt makes the sound, Node schedules it in real time.
 
