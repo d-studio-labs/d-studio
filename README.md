@@ -37,21 +37,22 @@ In a second terminal:
 
 ```sh
 cd examples/playground
-npm run play                     # starts the clock, plays tracks/techno
+npm run play                     # starts the clock, plays tracks/velvet (its tracks/.default)
 ```
 
-Open `tracks/techno/*.js` in your editor and save — the pattern hot-swaps
-while `play` keeps running, the clock never stops. Try muting/unmuting a line
-in `tracks/techno/index.js`'s `parts` object, or nudging a `.gain()`/`.lpf()`
-value, and listen to it change live.
+Open any file `tracks/velvet/index.js` imports and save — the pattern
+hot-swaps while `play` keeps running, the clock never stops. Try
+muting/unmuting a line in its `parts` object, or nudging a `.gain()`/`.lpf()`
+value, and listen to it change live. There's also `tracks/hello/`, a
+minimal two-part example — play it with `npm run play -- hello`.
 
 Other commands, run from inside `examples/playground/` (the same ones listed
 under [The CLI](#the-cli) below, scoped to this one project):
 
 ```sh
 npm run check                     # parses every part, prints events — no audio needed
-npm run export -- techno          # renders to exports/techno.wav
-npm run test -- techno --from 8   # flags any part that's effectively silent
+npm run export -- velvet          # renders to exports/velvet.wav
+npm run test -- velvet --from 32  # flags any part that's effectively silent
 npm run display                   # lanes + playhead in the browser
 ```
 
@@ -76,6 +77,7 @@ or a real install, since both put same-scope packages side by side under
 ```
 my-music/
   package.json       ← "@d-studio-labs/core" as a dependency
+  tracks/.default      ← optional: one line, which track `play`/`check` default to
   tracks/<name>/      ← index.js (BPM, parts) + the parts' own files
   synths/*.scd        ← optional: your own SuperDirt synths, loaded after the engine's
   samples/            ← gitignored, from `d-studio samples`
@@ -122,20 +124,24 @@ project's `node_modules/.bin`:
 ```sh
 npm install
 d-studio check            # headless: parses every part, prints events per cycle (no audio)
-d-studio check -- techno  # just one track
+d-studio check -- velvet  # just one track
 d-studio play             # the engine: Strudel's scheduler in Node → timed OSC to SuperDirt
-d-studio play -- techno --from 0 --to 16   # loop a bar range
-d-studio export -- techno  # render a track to exports/*.wav
+d-studio play -- velvet --from 0 --to 16   # loop a bar range
+d-studio export -- velvet  # render a track to exports/*.wav
 d-studio samples          # download drum machine samples (909 + 808 by default)
 d-studio ping             # one sound over OSC, no Strudel: is SuperDirt listening?
 d-studio dirt             # boots SuperDirt headless; wait for "SUPERDIRT READY"
 d-studio dirt-install     # one-time: SuperDirt + Dirt-Samples quarks
-d-studio test -- techno --from 42   # solo-renders each part, flags any effectively silent one
+d-studio test -- velvet --from 32   # solo-renders each part, flags any effectively silent one
                                      # (for an arranged track, point --from at a section where
                                      # every part should be active — not bar 0, which may be a
                                      # quiet intro by design)
 d-studio display          # lanes + playhead in the browser, following d-studio play's clock
 ```
+
+`d-studio play`/`check` with no track named use `tracks/.default` (one line,
+a track's folder name) if the project has one, else whichever track folder
+sorts first alphabetically.
 
 Each one needs SuperDirt running (see Dependencies, above) except `check`,
 which needs nothing but Node.
@@ -153,7 +159,7 @@ which needs nothing but Node.
 
 A track is a folder with an `index.js` exporting `BPM`, optional `BARS`, and
 `parts` (each key one lane). Saving any file a track imports hot-swaps the
-pattern while `d-studio play` runs. See `examples/playground/tracks/techno/index.js`.
+pattern while `d-studio play` runs. See `examples/playground/tracks/velvet/index.js`.
 
 ## Layout
 

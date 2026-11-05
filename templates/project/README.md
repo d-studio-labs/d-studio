@@ -11,26 +11,27 @@ npm run dirt           # boot SuperDirt; wait for "SUPERDIRT READY"
 In another terminal:
 
 ```sh
-npm run play -- hello   # starts the clock, plays tracks/hello
+npm run play            # starts the clock, plays tracks/velvet (tracks/.default)
 ```
 
-Edit any file `tracks/hello/index.js` imports and save — the pattern
+Edit any file `tracks/velvet/index.js` imports and save — the pattern
 hot-swaps while `play` keeps running, the clock never stops.
 
 ```sh
-npm run check -- hello            # parses every part, prints events — no audio needed
-npm run export -- hello           # renders to exports/hello.wav
-npm run test -- hello --from 0    # flags any part that's effectively silent
+npm run check -- velvet           # parses every part, prints events — no audio needed
+npm run export -- velvet          # renders to exports/velvet.wav
+npm run test -- velvet --from 32  # flags any part that's effectively silent
 npm run display                   # lanes + playhead in the browser
 ```
 
 ## Two starter tracks
 
+- **`tracks/velvet/`** — a fuller example (deep house, arranged end to end),
+  and the default `play`/`check` track (set in `tracks/.default`). See
+  `tracks/velvet/README.md` for a walkthrough of how it's put together.
 - **`tracks/hello/`** — the minimal shape: one drum part, one synth part,
-  four bars. Start here, or delete it once you've got the hang of things.
-- **`tracks/velvet/`** — a fuller example (deep house, arranged end to end).
-  See `tracks/velvet/README.md` for a walkthrough of how it's put together.
-  Play it with `npm run play -- velvet`.
+  four bars. Start here to learn the shape, or delete it once you've got the
+  hang of things. Play it with `npm run play -- hello`.
 
 See the [d-studio README](https://github.com/d-studio-labs/d-studio) for the
 full CLI, composition helpers, and environment variables.
