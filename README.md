@@ -184,14 +184,14 @@ which needs nothing but Node.
 
 ## `@d-studio-labs/core`'s exports
 
-| Subpath                        | What                                                             |
-| ------------------------------- | ----------------------------------------------------------------- |
-| `@d-studio-labs/core/mod`      | `drift` (perlin), `sweep` (sine), `ramp`, `gate`                 |
-| `@d-studio-labs/core/arrange`  | `arrangement(bars)` → `during(…ranges)`, `env(…points)`, `fadeIn`/`fadeOut` |
-| `@d-studio-labs/core/fx`       | echo times, `evolvingFilter`, `dubSpace`, `dubChord`, delay & spring params |
-| `@d-studio-labs/core/drums`    | `heartbeat(root)` — a dark kick tuned to the track's root        |
-| `@d-studio-labs/core/space`    | ambisonic params: `space`, `sphere`, `width`, `roll`, `azim`, `spin`, `elev`, `glide` |
-| `@d-studio-labs/core/midi`     | `midi(part)`, `cc(n)`, `knob(i)`, `around(i, low, high)`, `controls(parts, map)` |
+| Subpath                       | What                                                                                  |
+| ----------------------------- | ------------------------------------------------------------------------------------- |
+| `@d-studio-labs/core/mod`     | `drift` (perlin), `sweep` (sine), `ramp`, `gate`                                      |
+| `@d-studio-labs/core/arrange` | `arrangement(bars)` → `during(…ranges)`, `env(…points)`, `fadeIn`/`fadeOut`           |
+| `@d-studio-labs/core/fx`      | echo times, `evolvingFilter`, `dubSpace`, `dubChord`, delay & spring params           |
+| `@d-studio-labs/core/drums`   | `heartbeat(root)` — a dark kick tuned to the track's root                             |
+| `@d-studio-labs/core/space`   | ambisonic params: `space`, `sphere`, `width`, `roll`, `azim`, `spin`, `elev`, `glide` |
+| `@d-studio-labs/core/midi`    | `midi(part)`, `cc(n)`, `knob(i)`, `around(i, low, high)`, `controls(parts, map)`      |
 
 A track is a folder with an `index.js` exporting `BPM`, optional `BARS`, and
 `parts` (each key one lane). Saving any file a track imports hot-swaps the
@@ -216,10 +216,10 @@ packages/create/
 
 ## Environment
 
-| Variable         | Default                                                 | What                                             |
-| ---------------- | -------------------------------------------------------- | ------------------------------------------------- |
-| `DIRT_LATENCY`   | `0.4`                                                     | seconds events go out ahead                       |
-| `DIRT_PORT`      | `57120`                                                   | where the engine sends OSC                        |
-| `DIRT_SPACE`     | `binaural`                                                | `binaural`, `stereo` or `off`                      |
-| `SCLANG`         | `/Applications/SuperCollider.app/Contents/MacOS/sclang`   | where sclang lives                                 |
-| `STUDIO_URL`     | `http://localhost:5173`                                   | where `d-studio display`'s dev server runs; the engine posts its clock there |
+| Variable       | Default                                                 | What                                                                         |
+| -------------- | ------------------------------------------------------- | ---------------------------------------------------------------------------- |
+| `DIRT_LATENCY` | `0.4`                                                   | seconds events go out ahead                                                  |
+| `DIRT_PORT`    | `57120`                                                 | where the engine sends OSC                                                   |
+| `DIRT_SPACE`   | `binaural`                                              | `binaural`, `stereo` or `off`                                                |
+| `SCLANG`       | `/Applications/SuperCollider.app/Contents/MacOS/sclang` | where sclang lives                                                           |
+| `STUDIO_URL`   | `http://localhost:5173`                                 | where `d-studio display`'s dev server runs; the engine posts its clock there |

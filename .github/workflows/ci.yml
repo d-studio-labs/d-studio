@@ -20,6 +20,8 @@ jobs:
           node-version: lts/*
           cache: npm
       - run: npm ci
+      - run: npm run lint
+      - run: npm run format:check
       # audio-free sanity check: parses every track in the example project
       # through the real engine (no SuperCollider/SuperDirt needed)
       - run: npm run check --workspace examples/playground

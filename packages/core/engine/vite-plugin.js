@@ -30,7 +30,9 @@ export function studio({ projectDir = process.cwd() } = {}) {
       if (id !== RESOLVED_VIRTUAL_TRACKS) return
       const dir = join(projectDir, 'tracks')
       const names = existsSync(dir) ? readdirSync(dir, { withFileTypes: true }).filter((d) => d.isDirectory()) : []
-      const entries = names.map((d) => `${JSON.stringify(d.name)}: () => import(${JSON.stringify(`/@fs/${join(dir, d.name, 'index.js')}`)})`)
+      const entries = names.map(
+        (d) => `${JSON.stringify(d.name)}: () => import(${JSON.stringify(`/@fs/${join(dir, d.name, 'index.js')}`)})`,
+      )
       return `export const TRACKS = {${entries.join(',')}}\n`
     },
 
