@@ -45,6 +45,9 @@ fi
 mkdir -p "$name"
 cp -R "$tmp/packages/create/templates/project/." "$name/"
 
+# $name may be a path (curl ... | sh -s ~/code/my-track) - the package name
+# itself should just be the final component, not the whole path
+pkgname=$(basename "$name")
 author=$(git config --get user.name 2>/dev/null || true)
 : "${author:=your name}"
 year=$(date +%Y)
@@ -52,7 +55,7 @@ year=$(date +%Y)
 # BSD sed (macOS) needs an explicit (empty) backup extension after -i; GNU
 # sed doesn't. `|` as the delimiter since a name/author could contain `/`
 if sed --version >/dev/null 2>&1; then sed_i() { sed -i "$@"; }; else sed_i() { sed -i '' "$@"; }; fi
-sed_i "s|__PROJECT_NAME__|$name|" "$name/package.json" "$name/README.md"
+sed_i "s|__PROJECT_NAME__|$pkgname|" "$name/package.json" "$name/README.md"
 sed_i "s|__AUTHOR__|$author|; s|__YEAR__|$year|" "$name/LICENSE"
 
 echo "→ npm install"
