@@ -84,6 +84,18 @@ my-music/
 
 `examples/playground` is exactly this shape — read it before writing your own.
 
+### Scaffold one
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/d-studio-labs/d-studio/main/scripts/create.sh | sh -s my-track
+```
+
+Downloads `templates/project/` from this repo, fills in the name, and runs
+`npm install` — `my-track/` comes out matching the shape above, with
+ESLint/Prettier already wired up and a two-part starter track
+(`tracks/hello/`) to replace. Refuses to overwrite an existing directory. No
+local clone of this repo needed first.
+
 ## Dependencies
 
 **npm** (installed automatically as dependencies of `@d-studio-labs/core`):
