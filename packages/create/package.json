@@ -1,0 +1,5 @@
+{
+  "name": "@d-studio-labs/create",
+  "private": true,
+  "description": "Scaffolds a new d-studio project: curl -fsSL .../create.sh | sh -s my-track"
+}

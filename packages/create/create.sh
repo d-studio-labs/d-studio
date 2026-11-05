@@ -1,7 +1,7 @@
 #!/bin/sh
-# Scaffolds a new d-studio project from templates/project/.
+# Scaffolds a new d-studio project from templates/project/, next to this file.
 #
-#   curl -fsSL https://raw.githubusercontent.com/d-studio-labs/d-studio/main/scripts/create.sh | sh -s my-track
+#   curl -fsSL https://raw.githubusercontent.com/d-studio-labs/d-studio/main/packages/create/create.sh | sh -s my-track
 #
 # Downloads this repo's template folder, fills in the project name, and runs
 # `npm install`. Safe to re-run against a different name; refuses to
@@ -32,13 +32,13 @@ trap 'rm -rf "$tmp"' EXIT
 echo "→ downloading d-studio template…"
 curl -fsSL "https://github.com/$REPO/archive/refs/heads/$BRANCH.tar.gz" | tar -xz -C "$tmp" --strip-components=1
 
-if [ ! -d "$tmp/templates/project" ]; then
-  echo "✗ templates/project not found in $REPO@$BRANCH — the repo layout may have moved" >&2
+if [ ! -d "$tmp/packages/create/templates/project" ]; then
+  echo "✗ packages/create/templates/project not found in $REPO@$BRANCH — the repo layout may have moved" >&2
   exit 1
 fi
 
 mkdir -p "$name"
-cp -R "$tmp/templates/project/." "$name/"
+cp -R "$tmp/packages/create/templates/project/." "$name/"
 
 author=$(git config --get user.name 2>/dev/null || true)
 : "${author:=your name}"

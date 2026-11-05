@@ -62,6 +62,7 @@ npm run display                   # lanes + playhead in the browser
 packages/
   core/        @d-studio-labs/core — engine, lib, superdirt (see below)
   synths/      @d-studio-labs/synths — the shared filter-envelope SynthDef (d-modules.scd)
+  create/      the project scaffolder (curl | sh) — not published, just a script + template
 examples/
   playground/  a minimal project that depends on @d-studio-labs/core
 ```
@@ -89,10 +90,10 @@ my-music/
 ### Scaffold one
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/d-studio-labs/d-studio/main/scripts/create.sh | sh -s my-track
+curl -fsSL https://raw.githubusercontent.com/d-studio-labs/d-studio/main/packages/create/create.sh | sh -s my-track
 ```
 
-Downloads `templates/project/` from this repo, fills in the name (and your
+Downloads `packages/create/templates/project/` from this repo, fills in the name (and your
 git `user.name` + the year, into `LICENSE`), and runs `npm install` —
 `my-track/` comes out matching the shape above, with ESLint/Prettier already
 wired up, an all-rights-reserved `LICENSE` to swap out if you want
@@ -170,6 +171,9 @@ packages/core/
   superdirt/    startup, master (glue/tape/limiter), space (ATK), spring, midi, record
 packages/synths/
   d-modules.scd the shared filter-envelope SynthDef, loaded by core's startup.scd
+packages/create/
+  create.sh     the scaffolder (see "Scaffold one" above)
+  templates/project/   what it copies — a full standalone project, own package.json
 ```
 
 ## Environment
