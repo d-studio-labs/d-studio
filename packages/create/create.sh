@@ -6,10 +6,15 @@
 # Downloads this repo's template folder, fills in the project name, and runs
 # `npm install`. Safe to re-run against a different name; refuses to
 # overwrite an existing directory.
+#
+#   D_STUDIO_BRANCH=my-branch curl -fsSL .../my-branch/packages/create/create.sh | sh -s my-track
+#
+# tests a branch before it's merged to main (fetch the script itself from
+# that branch too, like the example above, or it'll run main's version)
 set -eu
 
-REPO="d-studio-labs/d-studio"
-BRANCH="main"
+REPO="${D_STUDIO_REPO:-d-studio-labs/d-studio}"
+BRANCH="${D_STUDIO_BRANCH:-main}"
 
 name="${1:-}"
 if [ -z "$name" ] && [ -t 0 ]; then
