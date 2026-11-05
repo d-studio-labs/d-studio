@@ -7,8 +7,8 @@
     "examples/*"
   ],
   "scripts": {
-    "lint": "eslint .",
-    "lint:fix": "eslint . --fix",
+    "lint": "eslint -c .eslint.config.js .",
+    "lint:fix": "eslint -c .eslint.config.js . --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
   },

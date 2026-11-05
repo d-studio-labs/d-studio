@@ -22,7 +22,7 @@ export default [
     },
   },
   {
-    files: ['packages/core/engine/**/*.{js,mjs}', '*.config.js'],
+    files: ['packages/core/engine/**/*.{js,mjs}', '.eslint.config.js'],
     ignores: ['packages/core/engine/main.js', 'packages/core/engine/viz.js'],
     languageOptions: { globals: globals.node },
   },
