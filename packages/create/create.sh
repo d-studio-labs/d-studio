@@ -64,6 +64,13 @@ sed_i "s|__PROJECT_NAME__|$pkgname|" "$name/package.json" "$name/README.md"
 sed_i "s|__AUTHOR__|$author|; s|__YEAR__|$year|" "$name/LICENSE"
 
 if [ -z "${D_STUDIO_SKIP_INSTALL:-}" ]; then
+  if [ -z "${NPM_TOKEN:-}" ]; then
+    echo "✗ NPM_TOKEN isn't set — @d-studio-labs/core and .../synths are on GitHub" >&2
+    echo "  Packages, which needs a token even to install public packages. Create" >&2
+    echo "  one with the read:packages scope (https://github.com/settings/tokens)," >&2
+    echo "  export NPM_TOKEN=<it>, then re-run npm install in $name." >&2
+    exit 1
+  fi
   echo "→ npm install"
   (cd "$name" && npm install)
 fi

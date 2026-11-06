@@ -1,0 +1,52 @@
+name: Publish
+
+# Tag-triggered: push core-vX.Y.Z or synths-vX.Y.Z to publish that one
+# workspace package to GitHub Packages (npm.pkg.github.com). The published
+# version always comes from the tag name, not package.json, so a publish
+# can't silently drift from what was actually tagged.
+on:
+  push:
+    tags:
+      - 'core-v*'
+      - 'synths-v*'
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Resolve package from tag
+        id: pkg
+        run: |
+          case "$GITHUB_REF_NAME" in
+            core-v*) dir=packages/core; version=${GITHUB_REF_NAME#core-v} ;;
+            synths-v*) dir=packages/synths; version=${GITHUB_REF_NAME#synths-v} ;;
+            *) echo "unrecognized tag: $GITHUB_REF_NAME" >&2; exit 1 ;;
+          esac
+          echo "dir=$dir" >> "$GITHUB_OUTPUT"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      - name: Tag must match the package's own version
+        run: |
+          actual=$(node -p "require('./${{ steps.pkg.outputs.dir }}/package.json').version")
+          if [ "$actual" != "${{ steps.pkg.outputs.version }}" ]; then
+            echo "tag says ${{ steps.pkg.outputs.version }} but ${{ steps.pkg.outputs.dir }}/package.json says $actual" >&2
+            exit 1
+          fi
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          registry-url: 'https://npm.pkg.github.com'
+          scope: '@d-studio-labs'
+
+      - run: npm ci
+
+      - run: npm publish --workspace ${{ steps.pkg.outputs.dir }}
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

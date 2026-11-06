@@ -17,12 +17,16 @@ dependency.
 ## Status
 
 Early, but public and usable today. `@d-studio-labs/core` and
-`@d-studio-labs/synths` aren't on the npm registry yet, but they're real,
-tagged, installable dependencies (see "Make your own" below) — using them
-doesn't require this monorepo. `examples/playground` is a real consumer of
-it too (not a copy of its code) and is the best place to see the intended
-shape of a project that depends on it. A proper npm registry publish
-(likely GitHub Packages first, scoped to this org) is tracked separately.
+`@d-studio-labs/synths` are published to GitHub Packages (not the public npm
+registry) — real, tagged, installable dependencies (see "Make your own"
+below) — using them doesn't require this monorepo. `examples/playground` is
+a real consumer of it too (not a copy of its code) and is the best place to
+see the intended shape of a project that depends on it.
+
+GitHub Packages requires auth even to install a public package: create a
+token with the `read:packages` scope
+(https://github.com/settings/tokens), `export NPM_TOKEN=<it>`, and the
+scaffolded project's `.npmrc` picks it up automatically.
 
 ## Make your own
 
