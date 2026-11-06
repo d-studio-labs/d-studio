@@ -1,5 +1,7 @@
 {
   "name": "@d-studio-labs/synths",
   "version": "0.1.0",
-  "private": true
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  }
 }

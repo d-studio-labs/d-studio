@@ -1,8 +1,10 @@
 {
   "name": "@d-studio-labs/core",
-  "version": "0.1.0",
-  "private": true,
+  "version": "0.1.1",
   "type": "module",
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
   "bin": {
     "d-studio": "./engine/cli.mjs"
   },

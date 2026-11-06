@@ -17,8 +17,8 @@
     "format:check": "prettier --check ."
   },
   "dependencies": {
-    "@d-studio-labs/core": "github:d-studio-labs/core#v0.1.1",
-    "@d-studio-labs/synths": "github:d-studio-labs/synths#v0.1.0"
+    "@d-studio-labs/core": "^0.1.1",
+    "@d-studio-labs/synths": "^0.1.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.5",
