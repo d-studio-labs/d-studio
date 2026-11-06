@@ -6,11 +6,13 @@
 //   --tail 4              seconds after the last bar, for echoes and reverb
 //   --solo kick,sub       only these parts (stems)   --mute pad   all but these
 //   --mp3                 also an MP3 (ffmpeg)        --out file.wav
+//   --lufs -16            normalize the export to this integrated loudness (ffmpeg loudnorm,
+//                         true peak capped at the master's own −1 dB ceiling)   --raw   skip it
 import { Cyclist, stack, setTime } from '@strudel/core'
 import { miniAllStrings } from '@strudel/mini'
 import { performance } from 'node:perf_hooks'
 import { spawnSync } from 'node:child_process'
-import { mkdirSync, readFileSync, writeFileSync, rmSync } from 'node:fs'
+import { mkdirSync, readFileSync, writeFileSync, renameSync, rmSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { resolve } from 'node:path'
 import { message, bundle, udp } from './osc.mjs'
@@ -131,18 +133,64 @@ const { sampleRate, channels } = trimWav(raw, out, offset, seconds + tail)
 rmSync(raw)
 console.log(`✓ ${out}  (${fmt(seconds + tail)}, ${sampleRate / 1000} kHz, 24-bit, ${channels} ch)`)
 
-// ── Optional: MP3 and a loudness reading, when ffmpeg is installed ──
+// ── Optional: loudness normalization and an MP3, when ffmpeg is installed ──
 const hasFfmpeg = spawnSync('ffmpeg', ['-version']).status === 0
+const targetLufs = Number(flags.lufs ?? -16)
+const targetTP = -1 // the master's own ceiling (master.scd)
 if (hasFfmpeg) {
-  const r = spawnSync(
+  // pass 1: measure (also what soundcheck.mjs reads to flag near-silent parts)
+  const measure = spawnSync(
     'ffmpeg',
-    ['-hide_banner', '-nostats', '-i', out, '-af', 'ebur128=peak=true', '-f', 'null', '-'],
+    [
+      '-hide_banner',
+      '-nostats',
+      '-i',
+      out,
+      '-af',
+      `loudnorm=I=${targetLufs}:TP=${targetTP}:print_format=json`,
+      '-f',
+      'null',
+      '-',
+    ],
     { encoding: 'utf8' },
   )
-  const summary = r.stderr.slice(r.stderr.lastIndexOf('Summary:'))
-  const lufs = summary.match(/I:\s+(-?[\d.]+) LUFS/)?.[1]
-  const peak = summary.match(/Peak:\s+(-?[\d.]+) dBFS/)?.[1]
-  if (lufs) console.log(`  ${lufs} LUFS integrated · true peak ${peak} dBFS`)
+  // the json block is followed by ffmpeg's own muxing summary — bound the slice
+  // on the matching close brace, or JSON.parse throws on that trailing text
+  const stats = JSON.parse(measure.stderr.match(/\{[^{}]*\}/s)?.[0] ?? '{}')
+  if (stats.input_i == null) {
+    console.log('  ? could not read loudness (unexpected ffmpeg output) — left as recorded')
+  } else {
+    console.log(`  ${stats.input_i} LUFS integrated · true peak ${stats.input_tp} dBFS`)
+
+    if (!flags.raw && Number(stats.input_i) > -50) {
+      // pass 2: apply with the measured stats (linear = a single gain, not dynamic
+      // range compression) so quiet mixes reach the target without re-squashing them
+      const normalized = out.replace(/\.wav$/, '.norm.wav')
+      const apply = spawnSync('ffmpeg', [
+        '-hide_banner',
+        '-loglevel',
+        'error',
+        '-y',
+        '-i',
+        out,
+        '-af',
+        `loudnorm=I=${targetLufs}:TP=${targetTP}:measured_I=${stats.input_i}:measured_TP=${stats.input_tp}:` +
+          `measured_LRA=${stats.input_lra}:measured_thresh=${stats.input_thresh}:offset=${stats.target_offset}:linear=true`,
+        '-c:a',
+        'pcm_s24le',
+        normalized,
+      ])
+      if (apply.status === 0) {
+        rmSync(out)
+        renameSync(normalized, out)
+        console.log(`✓ normalized to ${targetLufs} LUFS (true peak capped at ${targetTP} dBTP)`)
+      } else {
+        console.log(`  ✗ normalize failed, left as recorded: ${apply.stderr.trim()}`)
+      }
+    } else if (!flags.raw) {
+      console.log(`  (too quiet to normalize reliably — left as recorded)`)
+    }
+  }
 }
 if (flags.mp3) {
   if (!hasFfmpeg) console.log('  no MP3: ffmpeg not found (brew install ffmpeg)')
