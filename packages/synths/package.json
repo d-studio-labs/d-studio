@@ -1,6 +1,7 @@
 {
   "name": "@d-studio-labs/synths",
   "version": "0.1.0",
+  "license": "AGPL-3.0-or-later",
   "publishConfig": {
     "registry": "https://npm.pkg.github.com"
   }
