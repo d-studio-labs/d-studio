@@ -1,5 +1,6 @@
 {
   "name": "@d-studio-labs/create",
   "private": true,
+  "license": "AGPL-3.0-or-later",
   "description": "Scaffolds a new d-studio project: curl -fsSL .../create.sh | sh -s my-track"
 }
