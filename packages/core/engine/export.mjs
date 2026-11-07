@@ -8,6 +8,9 @@
 //   --mp3                 also an MP3 (ffmpeg)        --out file.wav
 //   --lufs -16            normalize the export to this integrated loudness (ffmpeg loudnorm,
 //                         true peak capped at the master's own −1 dB ceiling)   --raw   skip it
+//   --master              also write <name>.mastered.wav: analyzed against mastering/reference.json
+//                         (built with `d-studio learn-reference`) and EQ-corrected toward it, so
+//                         you can A/B the flat export against it — never replaces the flat one
 import { Cyclist, stack, setTime } from '@strudel/core'
 import { miniAllStrings } from '@strudel/mini'
 import { performance } from 'node:perf_hooks'
@@ -19,6 +22,14 @@ import { message, bundle, udp } from './osc.mjs'
 import { toDirt } from './dirt.mjs'
 import { loadTrack } from './track.mjs'
 import { PROJECT } from './project.mjs'
+import {
+  analyzeBands,
+  applyLoudnorm,
+  correctionFor,
+  firequalizerFilter,
+  loadReference,
+  measureLoudness,
+} from './mastering.mjs'
 
 miniAllStrings()
 
@@ -138,48 +149,18 @@ const hasFfmpeg = spawnSync('ffmpeg', ['-version']).status === 0
 const targetLufs = Number(flags.lufs ?? -16)
 const targetTP = -1 // the master's own ceiling (master.scd)
 if (hasFfmpeg) {
-  // pass 1: measure (also what soundcheck.mjs reads to flag near-silent parts)
-  const measure = spawnSync(
-    'ffmpeg',
-    [
-      '-hide_banner',
-      '-nostats',
-      '-i',
-      out,
-      '-af',
-      `loudnorm=I=${targetLufs}:TP=${targetTP}:print_format=json`,
-      '-f',
-      'null',
-      '-',
-    ],
-    { encoding: 'utf8' },
-  )
-  // the json block is followed by ffmpeg's own muxing summary — bound the slice
-  // on the matching close brace, or JSON.parse throws on that trailing text
-  const stats = JSON.parse(measure.stderr.match(/\{[^{}]*\}/s)?.[0] ?? '{}')
+  // measure (also what soundcheck.mjs reads to flag near-silent parts)
+  const stats = measureLoudness(out, { lufs: targetLufs, tp: targetTP })
   if (stats.input_i == null) {
     console.log('  ? could not read loudness (unexpected ffmpeg output) — left as recorded')
   } else {
     console.log(`  ${stats.input_i} LUFS integrated · true peak ${stats.input_tp} dBFS`)
 
     if (!flags.raw && Number(stats.input_i) > -50) {
-      // pass 2: apply with the measured stats (linear = a single gain, not dynamic
-      // range compression) so quiet mixes reach the target without re-squashing them
+      // a single gain, not dynamic range compression, so quiet mixes reach the
+      // target without re-squashing them
       const normalized = out.replace(/\.wav$/, '.norm.wav')
-      const apply = spawnSync('ffmpeg', [
-        '-hide_banner',
-        '-loglevel',
-        'error',
-        '-y',
-        '-i',
-        out,
-        '-af',
-        `loudnorm=I=${targetLufs}:TP=${targetTP}:measured_I=${stats.input_i}:measured_TP=${stats.input_tp}:` +
-          `measured_LRA=${stats.input_lra}:measured_thresh=${stats.input_thresh}:offset=${stats.target_offset}:linear=true`,
-        '-c:a',
-        'pcm_s24le',
-        normalized,
-      ])
+      const apply = applyLoudnorm(out, normalized, { lufs: targetLufs, tp: targetTP, stats })
       if (apply.status === 0) {
         rmSync(out)
         renameSync(normalized, out)
@@ -189,6 +170,55 @@ if (hasFfmpeg) {
       }
     } else if (!flags.raw) {
       console.log(`  (too quiet to normalize reliably — left as recorded)`)
+    }
+  }
+}
+
+// ── Optional: a second, EQ-corrected file to A/B against the flat one above ──
+if (flags.master) {
+  if (!hasFfmpeg) {
+    console.log('  no --master: ffmpeg not found (brew install ffmpeg)')
+  } else {
+    const refPath = fileURLToPath(new URL('mastering/reference.json', PROJECT))
+    let reference
+    try {
+      reference = loadReference(refPath)
+    } catch {
+      console.log(`  ✗ no reference curve at ${refPath} — run \`d-studio learn-reference <file.wav>\` first`)
+    }
+    if (reference) {
+      const analyzed = analyzeBands(out)
+      const corrections = correctionFor(analyzed, reference)
+      const mastered = out.replace(/\.wav$/, '.mastered.wav')
+      const eq = spawnSync('ffmpeg', [
+        '-hide_banner',
+        '-loglevel',
+        'error',
+        '-y',
+        '-i',
+        out,
+        '-af',
+        firequalizerFilter(corrections),
+        '-c:a',
+        'pcm_s24le',
+        mastered,
+      ])
+      if (eq.status !== 0) {
+        console.log(`  ✗ --master EQ pass failed: ${eq.stderr.trim()}`)
+      } else {
+        const mStats = measureLoudness(mastered, { lufs: reference.lufs, tp: reference.tp })
+        const final = mastered.replace(/\.wav$/, '.norm.wav')
+        const apply = applyLoudnorm(mastered, final, { lufs: reference.lufs, tp: reference.tp, stats: mStats })
+        if (apply.status === 0) {
+          rmSync(mastered)
+          renameSync(final, mastered)
+          console.log(
+            `✓ ${mastered}  (matched to ${refPath.replace(fileURLToPath(PROJECT), '')}, ${reference.lufs} LUFS)`,
+          )
+        } else {
+          console.log(`  ✗ --master normalize failed: ${apply.stderr.trim()}`)
+        }
+      }
     }
   }
 }
