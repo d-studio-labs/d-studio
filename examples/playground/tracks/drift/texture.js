@@ -7,4 +7,8 @@ import { evolvingFilter } from '@d-studio-labs/core/fx'
 
 // the band drifts open and closed on its own (evolvingFilter, fx.js) instead
 // of sitting still in one place, and the hiss wanders slowly left to right
-export const hiss = evolvingFilter(sound('dhiss').gain(0.025).pan(sweep(0.4, 0.6, 41))).orbit(4)
+export const hiss = evolvingFilter(
+  sound('dhiss')
+    .gain(0.025)
+    .pan(sweep(0.4, 0.6, 41)),
+).orbit(4)

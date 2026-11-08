@@ -47,13 +47,7 @@ const voiced = (p) =>
 // i, bars 0–16 (front and wide): home, dpadsweep's own filter singing slowly
 // up and down the chord's harmonic series
 const home = voiced(
-  note('[c3, eb3, g3, bb3, d4]')
-    .sound('dpadsweep')
-    .slow(4)
-    .lprate(0.1)
-    .lpdepth(1.5)
-    .resonance(0.6)
-    .gain(0.12),
+  note('[c3, eb3, g3, bb3, d4]').sound('dpadsweep').slow(4).lprate(0.1).lpdepth(1.5).resonance(0.6).gain(0.12),
 ).apply(during([0, 16]))
 
 // ♭VI, bars 16–32 (behind and overhead): dsuper in place of dpadsweep, but
@@ -74,13 +68,7 @@ const lift = voiced(
 // ♭VII, bars 32–40 (rolling back to the front): back on dpadsweep, so the
 // chord and the timbre resolve home together
 const back = voiced(
-  note('[bb2, d3, f3, a3, c4]')
-    .sound('dpadsweep')
-    .slow(4)
-    .lprate(0.1)
-    .lpdepth(1.5)
-    .resonance(0.6)
-    .gain(0.12),
+  note('[bb2, d3, f3, a3, c4]').sound('dpadsweep').slow(4).lprate(0.1).lpdepth(1.5).resonance(0.6).gain(0.12),
 ).apply(during([32, 40]))
 
 // a silent tick on every beat carries the room/size drift and the echo's own
