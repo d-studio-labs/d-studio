@@ -70,12 +70,30 @@ export function measureLoudness(file, { lufs, tp }) {
  * ffmpeg loudnorm's apply pass, linear (a single gain, not dynamic range
  * compression) using stats already measured from this same file.
  *
+ * When the true-peak limiter actually has to engage (not just a flat gain),
+ * ffmpeg's loudnorm runs at 4x oversampling internally and — on at least some
+ * builds — doesn't resample back down, silently handing back 192 kHz audio
+ * instead of 48 kHz. Forcing `-ar` back to the source rate always (a no-op
+ * when the limiter never engaged) keeps the output rate honest either way.
+ *
  * @param {string} file
  * @param {string} outFile
  * @param {{ lufs: number, tp: number, stats: object }} opts
  * @returns {import('node:child_process').SpawnSyncReturns<string>}
  */
 export function applyLoudnorm(file, outFile, { lufs, tp, stats }) {
+  const probe = spawnSync('ffprobe', [
+    '-v',
+    'error',
+    '-select_streams',
+    'a:0',
+    '-show_entries',
+    'stream=sample_rate',
+    '-of',
+    'default=noprint_wrappers=1:nokey=1',
+    file,
+  ])
+  const sampleRate = probe.stdout?.toString().trim()
   return spawnSync('ffmpeg', [
     '-hide_banner',
     '-loglevel',
@@ -86,6 +104,7 @@ export function applyLoudnorm(file, outFile, { lufs, tp, stats }) {
     '-af',
     `loudnorm=I=${lufs}:TP=${tp}:measured_I=${stats.input_i}:measured_TP=${stats.input_tp}:` +
       `measured_LRA=${stats.input_lra}:measured_thresh=${stats.input_thresh}:offset=${stats.target_offset}:linear=true`,
+    ...(sampleRate ? ['-ar', sampleRate] : []),
     '-c:a',
     'pcm_s24le',
     outFile,
