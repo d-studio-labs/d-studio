@@ -188,3 +188,11 @@ export const drive = createParam('drive')
  * @type {(value: number | string | Pattern) => Pattern}
  */
 export const drivetone = createParam('drivetone')
+
+/**
+ * A 24 dB/oct low-pass after the clip, in Hz (0 off): only the lows the clip
+ * thickened are left, like the filter after an amp. Only while `drive` is above 0.
+ *
+ * @type {(value: number | string | Pattern) => Pattern}
+ */
+export const drivelpf = createParam('drivelpf')
