@@ -165,3 +165,34 @@ export const springdecay = createParam('springdecay')
  * @type {(value: number | string | Pattern) => Pattern}
  */
 export const springtone = createParam('springtone')
+
+// ── Drive (superdirt/drive.scd): a gain-compensated soft-clip send, the grit
+// any sound can reach for without its synth needing drive built in. An orbit
+// setting, like spring: the orbit keeps the last value. Sits right after the
+// delay, before the spring and room, so the echoes (and the room, with
+// .delayroom) come out already driven ──
+
+/**
+ * How hard the clip bites: 0 off (the effect sleeps, the orbit is untouched)
+ * up to 1, heavy. Gain-compensated, so the level doesn't lurch as this moves.
+ *
+ * @example
+ * .drive(0.4).drivetone(0.6)
+ * @type {(value: number | string | Pattern) => Pattern}
+ */
+export const drive = createParam('drive')
+
+/**
+ * The low-pass after the clip: 0 dark … 1 bright (default 1, 9 kHz).
+ *
+ * @type {(value: number | string | Pattern) => Pattern}
+ */
+export const drivetone = createParam('drivetone')
+
+/**
+ * A 24 dB/oct low-pass after the clip, in Hz (0 off): only the lows the clip
+ * thickened are left, like the filter after an amp. Only while `drive` is above 0.
+ *
+ * @type {(value: number | string | Pattern) => Pattern}
+ */
+export const drivelpf = createParam('drivelpf')
