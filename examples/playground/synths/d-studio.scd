@@ -152,11 +152,13 @@ SynthDef(\dbd, { |out, sustain = 0.5, pan, freq = 44, penv = 20, pdecay = 0.06, 
 }).add;
 
 // dhiss: tape hiss, a flat bed. Separate noise in every channel (wide, no pan),
-// in the 1.5–12 kHz band. Fades in and out over a fifth of its length (sine,
-// equal power), so notes at legato 1.25 crossfade with no change in level.
+// in the 1.5–12 kHz band. Fades in and out over a fifth of its length, so notes at legato 1.25
+// crossfade with no change in level: the fades are a quarter sine and cosine, so the two notes'
+// POWERS add to a constant (the noise in each is unrelated, so powers are what add). An S-curve
+// fade (Env's \sin) halves the power at the crossfade's middle: a 3 dB dip every note, a swell.
 SynthDef(\dhiss, { |out, sustain = 1|
-	var fade = sustain / 5;
-	var env = EnvGen.ar(Env.linen(fade, sustain - (2 * fade), fade, 1, \sin), doneAction: 2);
+	var t = Line.ar(0, 1, sustain, doneAction: 2);
+	var env = sin(((t / 0.2).clip(0, 1)) * 0.5pi) * cos(((t - 0.8) / 0.2).clip(0, 1) * 0.5pi);
 	var sound = BLowPass.ar(BHiPass.ar(WhiteNoise.ar(0.1 ! ~dirt.numChannels), 1500), 12000);
 	Out.ar(out, sound * env);
 }).add;
@@ -321,5 +323,82 @@ SynthDef(\dcrackle, { |out, sustain = 1, density = 8|
 	var crackle = HPF.ar(Dust2.ar(density ! n), 2000) * LFNoise1.kr(0.7 ! n).range(0.2, 1);
 	var pops = LPF.ar(Decay2.ar(Dust.ar(0.3 ! n), 0.0005, 0.006) * WhiteNoise.ar(1 ! n), 3000) * 0.6;
 	Out.ar(out, (crackle * 0.5 + pops) * env);
+}).add;
+
+// ── The forest at night (tracks/techno/forest.js) ──
+
+// dowl: an owl's hoot, one per event (a call is several). A round tone that swells in, holds
+// and droops a little at the end, with a touch of the 2nd and 3rd harmonics and a breath of
+// noise around the 2nd. Pitch from note, length from sustain (.legato, at least 0.15 s).
+// breath is the noise level: 0 a clean tone, 1 airy. It has no filter or reverb: .lpf() makes
+// it distant, .room() puts it in the trees.
+SynthDef(\dowl, { |out, sustain = 0.4, pan, freq = 330, speed = 1, accelerate = 0, breath = 0.3|
+	var len = sustain.max(0.15);
+	var env = EnvGen.ar(Env([0, 1, 0.8, 0], [0.06, (len - 0.2).max(0.01), 0.14], [\sin, \lin, \sin]), doneAction: 2);
+	var f = freq * DirtFreqScale.kr(speed, accelerate, sustain)
+		* EnvGen.kr(Env([0.96, 1, 0.93], [0.07, (len - 0.07).max(0.01)], \lin))
+		* (1 + (SinOsc.kr(5.5) * 0.004));
+	var tone = SinOsc.ar(f) + (SinOsc.ar(f * 2) * 0.28) + (SinOsc.ar(f * 3) * 0.07);
+	var air = BPF.ar(PinkNoise.ar, f * 2, 0.4) * breath * 0.5;
+	var sound = LPF.ar((tone + air) * 0.35, 2200);
+	Out.ar(out, DirtPan.ar(sound, ~dirt.numChannels, pan, env));
+}).add;
+
+// dwolf: a wolf's howl, one per event. The pitch climbs from a low moan to a held note and
+// slides back down (the contour below, in multiples of the note), with a vibrato that grows as
+// it holds. A saw and a narrow pulse through two vowel-like band-passes (about 700 and 1250 Hz)
+// and a low shelf, with breath. Length from sustain (.legato, at least a second): the swell
+// takes the first 18%, the fall the last 27%. Like dowl: .lpf() for distance, .room() for the trees.
+SynthDef(\dwolf, { |out, sustain = 5, pan, freq = 392, speed = 1, accelerate = 0, breath = 0.3|
+	var len = sustain.max(1);
+	var env = EnvGen.ar(Env([0, 1, 1, 0], [0.18, 0.55, 0.27] * len, [\sin, \lin, \sin]), doneAction: 2);
+	var contour = EnvGen.kr(Env([0.8, 1, 1.5, 1.55, 1.3, 0.95], [0.1, 0.22, 0.28, 0.2, 0.2] * len, \sin));
+	var vib = SinOsc.kr(5.2 + LFNoise2.kr(0.4)) * 0.012 * Line.kr(0, 1, len * 0.4);
+	var f = freq * DirtFreqScale.kr(speed, accelerate, sustain) * contour * (1 + vib + (LFNoise2.kr(2) * 0.004));
+	var raw = (Saw.ar(f) * 0.5) + (Pulse.ar(f * 1.005, 0.3) * 0.2);
+	var voice = BPF.ar(raw, 700, 0.5) + (BPF.ar(raw, 1250, 0.6) * 0.6) + (LPF.ar(raw, 500) * 0.4);
+	var air = BPF.ar(PinkNoise.ar, 900, 0.5) * breath * 0.25;
+	var sound = LPF.ar((voice + air) * 0.4, 4500);
+	Out.ar(out, DirtPan.ar(sound, ~dirt.numChannels, pan, env));
+}).add;
+
+// dbasspad: a dark bass drone, for the build into the kick and as a marker between states
+// (tracks/techno/dark.js). Five saws spread ±detune semitones across the ears, through a 24 dB
+// low-pass at bright Hz that a slow LFO moves (lfodepth octaves either side, one trip in 1/lfohz
+// seconds), then a soft clip so the harmonics that get through the filter stay thick. Pitch from
+// note: keep it at F2 and above, so it doesn't sit on the kick's sub. No chorus or reverb: .room()
+// comes from the pattern.
+// For one long note: rise is how many times higher the low-pass has climbed by the note's end
+// (1 = it stays at bright) and swell is the level it starts at, climbing to full by the end (1 =
+// no swell). Both move on an exponential curve, an even change to the ear, over the whole note.
+SynthDef(\dbasspad, { |out, sustain = 1, pan, freq = 87, speed = 1, accelerate = 0, detune = 0.12, bright = 300, lfohz = 0.05, lfodepth = 0.8, rise = 1, swell = 1|
+	var env = EnvGen.ar(Env.linen(0.002, 0.996, 0.002, 1, -3), timeScale: sustain, doneAction: 2);
+	var f = freq * DirtFreqScale.kr(speed, accelerate, sustain);
+	var lfo = SinOsc.kr(lfohz, Rand(0, 2pi));
+	var climb = XLine.kr(1, rise.max(0.01), sustain);
+	var level = XLine.kr(swell.clip(0.001, 1), 1, sustain);
+	var saws = [-1, -0.5, 0, 0.5, 1].collect { |v| LFSaw.ar(f * (v * detune).midiratio, Rand(0, 2)) };
+	var sound = Splay.ar(saws, 0.6) * 0.5;
+	sound = BLowPass4.ar(sound, (bright * climb * (2 ** (lfo * lfodepth))).clip(40, 6000), 0.6);
+	sound = (sound * 2).tanh * 0.5 * level;
+	Out.ar(out, DirtPan.ar(sound, ~dirt.numChannels, pan, env));
+}).add;
+
+// dlead: the hypnotic lead (tracks/techno/lead.js). Two saws a few cents apart, one in each ear,
+// with a pulse an octave down in the middle whose width wobbles slowly, then a soft clip. One voice a
+// note, with a short length from sustain (set it with a short .legato: a pluck). No filter of its
+// own: shape it with .lpf().lpq().lpenv().lpdecay() (d-modules.scd), the opening of the filter on
+// each note is the pluck. Pitch from note.
+//   detune  semitones between the ears   sub  the octave-down pulse's level
+//   pw, pwrate  pulse width (0.5 square) and its wobble in Hz
+SynthDef(\dlead, { |out, sustain = 0.1, pan, freq = 440, speed = 1, accelerate = 0, detune = 0.08, sub = 0.35, pw = 0.5, pwrate = 0.3|
+	var env = EnvGen.ar(Env.linen(0.002, 0.996, 0.002, 1, -3), timeScale: sustain, doneAction: 2);
+	var f = freq * DirtFreqScale.kr(speed, accelerate, sustain);
+	var saws = Saw.ar(f * [detune.neg, detune].midiratio);
+	var width = (pw + (SinOsc.kr(pwrate, Rand(0, 2pi)) * 0.2)).clip(0.1, 0.9);
+	var pulse = Pulse.ar(f / 2, width) * sub;
+	var sound = (saws * 0.5) + pulse;
+	sound = (sound * 1.2).tanh * 0.6;
+	Out.ar(out, DirtPan.ar(sound, ~dirt.numChannels, pan, env));
 }).add;
 )
