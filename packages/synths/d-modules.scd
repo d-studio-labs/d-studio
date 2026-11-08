@@ -39,4 +39,18 @@ SynthDef("dirt_lpf_env" ++ numChannels, { |out, cutoff = 440, resonance = 0, lpe
 		])
 	}
 }, { ~cutoff.notNil });
+
+// The shared drive curve: a gain-compensated tanh soft-clip, exactly dry at
+// amount 0 (so turning it up never lurches in from silence or a level jump),
+// with a low-pass after the clip to tame the harmonics it adds. One
+// definition, so every sound that wants this color — superdirt/drive.scd's
+// per-orbit send, or a synth with its own drive built in — reaches for the
+// same curve instead of hand-rolling .tanh again.
+~dstudioDrive = { |sig, amount = 0, tone = 1|
+	var a = amount.clip(0, 1);
+	var k = 1 + (a * 11);
+	var shaped = (sig * k).tanh / k;
+	var cutoff = tone.clip(0, 1).linexp(0, 1, 1500, 9000);
+	sig + ((LPF.ar(shaped, cutoff) - sig) * a)
+};
 )

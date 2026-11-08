@@ -260,7 +260,7 @@ const keyUp = (key) => {
 // the latest event there. So on a turn each orbit gets a silent event carrying its
 // part's settings as they are now. Hits already queued (LATENCY ahead) still carry
 // the old values: one more silent event after they've played makes the turn stick
-// d-studio's own orbit settings too (superdirt/space.scd, spring.scd), so they
+// d-studio's own orbit settings too (superdirt/space.scd, spring.scd, drive.scd), so they
 // answer a turn as fast as SuperDirt's
 const SPACE = [
   'delay',
@@ -279,6 +279,8 @@ const SPACE = [
   'spring',
   'springdecay',
   'springtone',
+  'drive',
+  'drivetone',
 ]
 let playing = silence
 const space = () => {
