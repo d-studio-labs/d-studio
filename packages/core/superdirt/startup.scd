@@ -65,6 +65,7 @@ s.waitForBoot {
 	(here +/+ "master.scd").load;    // master bus, meter, kick ducking
 	(here +/+ "space.scd").load;     // ambisonics (ATK): .space .sphere .azim .spin .elev
 	(here +/+ "spring.scd").load;    // spring reverb: .spring .springdecay .springtone
+	(here +/+ "drive.scd").load;     // drive: .drive .drivetone
 	(here +/+ "midi.scd").load;      // live keys from the engine, with note-offs
 	(here +/+ "record.scd").load;    // npm run export: records the master
 

@@ -39,4 +39,24 @@ SynthDef("dirt_lpf_env" ++ numChannels, { |out, cutoff = 440, resonance = 0, lpe
 		])
 	}
 }, { ~cutoff.notNil });
+
+// The shared drive curve: a gain-compensated tanh soft-clip, exactly dry at
+// amount 0 (so turning it up never lurches in from silence or a level jump),
+// with a low-pass after the clip to tame the harmonics it adds. One
+// definition, so every sound that wants this color — superdirt/drive.scd's
+// per-orbit send, or a synth with its own drive built in — reaches for the
+// same curve instead of hand-rolling .tanh again.
+// (loadSynthDefs runs this file inside a throwaway (dirt: ...).use Event, so a
+// plain ~name would vanish with it: topEnvironment is what drive.scd can reach)
+topEnvironment[\dstudioDrive] = { |sig, amount = 0, tone = 1, lpf = 0|
+	var a = amount.clip(0, 1);
+	var k = 1 + (a * 11);
+	var shaped = (sig * k).tanh / k;
+	var cutoff = tone.clip(0, 1).linexp(0, 1, 1500, 9000);
+	var clipped = LPF.ar(shaped, cutoff);
+	// lpf in Hz after the clip (0 = off), 24 dB/oct: keeps only the lows the clip
+	// thickened, as a low-pass after an amp does (the rumble's Auto Filter)
+	var filtered = Select.ar(lpf > 0, [clipped, BLowPass4.ar(clipped, lpf.clip(20, 2000), 0.6)]);
+	sig + ((filtered - sig) * a)
+};
 )
