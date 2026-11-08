@@ -108,11 +108,13 @@ SynthDef(\dsub, { |out, sustain = 1, pan, freq = 65, speed = 1, accelerate = 0, 
 // dkick: sine kick with a pitch drop: the deep, round dub techno heartbeat.
 // Pitch from note (g1 ≈ 49 Hz sits under a C-minor bass), tail from sustain
 // (set with .legato), drop of penv semitones over pdecay seconds.
-SynthDef(\dkick, { |out, sustain = 0.4, pan, freq = 49, penv = 24, pdecay = 0.05|
-	var amp = EnvGen.ar(Env.perc(0.003, sustain, curve: -5), doneAction: 2);
+// curve shapes the tail's fall (-5 quick then long, 0 a straight line to silence),
+// click is the level of the noise tick at the start (0 a clean sine).
+SynthDef(\dkick, { |out, sustain = 0.4, pan, freq = 49, penv = 24, pdecay = 0.05, curve = -5, click = 1|
+	var amp = EnvGen.ar(Env.perc(0.003, sustain, curve: curve), doneAction: 2);
 	var pitch = freq * EnvGen.ar(Env([penv.midiratio, 1], [pdecay], \exp));
 	var body = SinOsc.ar(pitch, 0.5pi);
-	var thump = LPF.ar(WhiteNoise.ar, 1200) * EnvGen.ar(Env.perc(0.001, 0.012)) * 0.15;
+	var thump = LPF.ar(WhiteNoise.ar, 1200) * EnvGen.ar(Env.perc(0.001, 0.012)) * 0.15 * click;
 	var sound = ((body + thump) * 1.4).tanh * 0.6;   // soft clip: rounder, a little warmth
 	Out.ar(out, DirtPan.ar(sound, ~dirt.numChannels, pan, amp));
 }).add;
