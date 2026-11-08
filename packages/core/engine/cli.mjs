@@ -14,6 +14,7 @@ const commands = {
   ping: './ping.mjs',
   test: './soundcheck.mjs',
   display: './display.mjs',
+  'learn-reference': './learn-reference.mjs',
 }
 
 const SCLANG = process.env.SCLANG || '/Applications/SuperCollider.app/Contents/MacOS/sclang'
