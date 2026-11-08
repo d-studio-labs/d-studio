@@ -7,6 +7,14 @@
 // .attack/.release (SuperDirt's envelope module), filter with .lpf/.hpf.
 
 (
+// padchorus: the pad's chorus, a slowly modulated delayed copy a side (a different
+// rate each ear), mixed under the dry. amt 0 = none. It smears the onset and moves
+// the sound back in the mix. Level stays the same as amt moves
+var padchorus = { |sig, amt|
+	var mod = SinOsc.kr([0.37, 0.53], [0, pi]).range(0.012, 0.026);
+	(sig * (1 - (amt * 0.5))) + (DelayC.ar(sig, 0.05, mod) * amt * 0.5)
+};
+
 // dsaw: five detuned saws — dub bass and chord stabs. detune in semitones (±)
 SynthDef(\dsaw, { |out, sustain = 1, pan, freq = 440, speed = 1, accelerate = 0, detune = 0.2|
 	var env = EnvGen.ar(Env.linen(0.002, 0.996, 0.002, 1, -3), timeScale: sustain, doneAction: 2);
@@ -185,6 +193,60 @@ SynthDef(\dstrings, { |out, sustain = 1, pan, freq = 440, speed = 1, accelerate 
 	var lfo = (SinOsc.kr(0.6, phases) * 0.0022) + (SinOsc.kr(6.1, phases) * 0.0003) + 0.008;
 	var sound = LPF.ar(DelayC.ar(dry, 0.02, lfo), (f * bright).clip(300, 9000));
 	Out.ar(out, DirtPan.ar(sound * 0.6, ~dirt.numChannels, pan, env));
+}).add;
+
+// ── The three-layer pad (tracks/techno/pad.js): the same chords through three
+// different voices. Each has a slow LFO moving its filter, a chorus, and no filter
+// or reverb of its own beyond that: .hpf() and .room() come from the pattern.
+
+// dpadmain: the main pad. Pink noise under two saws (the note and its octave down),
+// each a unison of three copies spread ±detune semitones across the ears, with a
+// slow vibrato, through a 24 dB low-pass whose cutoff an LFO sweeps (lfodepth octaves
+// either side of cutoff, one trip in 1/lfohz seconds).
+//   detune  unison spread in semitones   noise  level of the pink noise under the saws
+//   vibrato depth in semitones (5.2 Hz, fades in)   chorus  0 none … 1 deep
+SynthDef(\dpadmain, { |out, sustain = 1, pan, freq = 440, speed = 1, accelerate = 0, detune = 0.15, noise = 0.1, cutoff = 1400, lfohz = 0.09, lfodepth = 1, vibrato = 0.05, chorus = 0.6|
+	var env = EnvGen.ar(Env.linen(0.002, 0.996, 0.002, 1, -3), timeScale: sustain, doneAction: 2);
+	var f = freq * DirtFreqScale.kr(speed, accelerate, sustain);
+	var vib = SinOsc.kr(5.2, Rand(0, 2pi)) * vibrato * Line.kr(0, 1, 0.8);
+	var saws = [1, 0.5].collect { |ratio|
+		[-1, 0, 1].collect { |v| LFSaw.ar(f * ratio * ((v * detune) + vib).midiratio, Rand(0, 2)) }
+	}.flat;
+	var lfo = SinOsc.kr(lfohz, Rand(0, 2pi));
+	var sound = (Splay.ar(saws, 0.8) * 0.3) + PinkNoise.ar(noise * 0.15 ! 2);
+	sound = BLowPass4.ar(sound, (cutoff * (2 ** (lfo * lfodepth))).clip(80, 12000), 0.7);
+	Out.ar(out, DirtPan.ar(padchorus.(sound, chorus), ~dirt.numChannels, pan, env));
+}).add;
+
+// dpadfm: the mid-range pad. Two sines a hair apart (one an ear), each phase-
+// modulated by a sine at ratio × its pitch, the modulation depth wandering slowly,
+// through a band-pass that follows the note (centre = bandharm × the note) and
+// that an LFO sweeps.
+//   detune  semitones between the two sines   index  FM depth   ratio  modulator : carrier
+//   bandharm  band centre in harmonics of the note   lfohz, lfodepth  the sweep
+SynthDef(\dpadfm, { |out, sustain = 1, pan, freq = 440, speed = 1, accelerate = 0, detune = 0.1, index = 1.2, ratio = 2, bandharm = 3, lfohz = 0.07, lfodepth = 1, chorus = 0.6|
+	var env = EnvGen.ar(Env.linen(0.002, 0.996, 0.002, 1, -3), timeScale: sustain, doneAction: 2);
+	var f = freq * DirtFreqScale.kr(speed, accelerate, sustain);
+	var wander = LFNoise2.kr([0.23, 0.31]).range(0.3, 1) * index;
+	var carriers = f * [detune.neg, detune].midiratio;
+	var sound = SinOsc.ar(carriers, SinOsc.ar(carriers * ratio) * wander) * 0.5;
+	var lfo = SinOsc.kr(lfohz, Rand(0, 2pi));
+	sound = BPF.ar(sound, (f * bandharm * (2 ** (lfo * lfodepth))).clip(100, 9000), 0.6);
+	Out.ar(out, DirtPan.ar(padchorus.(sound, chorus), ~dirt.numChannels, pan, env));
+}).add;
+
+// dpadtex: the supporting texture. Three sines an octave apart (the note an octave
+// down, the note, the note an octave up), each drifting a little on its own, mixed
+// into one waveform, through a band-pass an LFO sweeps.
+//   bandharm  band centre in harmonics of the note   lfohz, lfodepth  the sweep
+SynthDef(\dpadtex, { |out, sustain = 1, pan, freq = 440, speed = 1, accelerate = 0, bandharm = 2, lfohz = 0.06, lfodepth = 1, chorus = 0.6|
+	var env = EnvGen.ar(Env.linen(0.002, 0.996, 0.002, 1, -3), timeScale: sustain, doneAction: 2);
+	var f = freq * DirtFreqScale.kr(speed, accelerate, sustain);
+	var drift = LFNoise2.kr([[0.19, 0.27], [0.23, 0.17], [0.29, 0.21]]).range(-0.05, 0.05);
+	var sound = Mix(SinOsc.ar(f * [0.5, 1, 2] * drift.midiratio) * [0.5, 0.4, 0.3]) * 0.6;
+	var lfo = SinOsc.kr(lfohz, Rand(0, 2pi));
+	sound = BPF.ar(sound, (f * bandharm * (2 ** (lfo * lfodepth))).clip(100, 9000), 0.7);
+	Out.ar(out, DirtPan.ar(padchorus.(sound, chorus), ~dirt.numChannels, pan, env));
 }).add;
 
 // dkeys: FM electric piano. A 1:1 body whose brightness falls fast after the hit,

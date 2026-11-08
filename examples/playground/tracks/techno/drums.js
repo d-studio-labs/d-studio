@@ -20,19 +20,14 @@ import { SIXTEENTH } from '@d-studio-labs/core/fx'
 const curve = createParam('curve')
 const click = createParam('click')
 
-// "Kick": a clean sine at ~60 Hz (B1), no pitch drop, ~240 ms, no click: the fat layer
-export const body = note('b1*4').sound('dkick').penv(0).click(0).curve(0).legato(0.34).gain(0.8)
+// "Kick": a clean sine at ~65 Hz (C2, the fifth of the pad's F), no pitch drop, no click: the fat layer
+export const body = note('c2*4').sound('dkick').penv(0).click(0).curve(0).legato(0.34).gain(0.8)
 // "Kick 2": the same kind of sine but starting an octave up and falling onto ~49 Hz
 // (G1) in ~40 ms, ~300 ms long, low-passed at 100 Hz: a soft sub thump, no click
 export const thump = note('g1*4').sound('dkick').penv(12).pdecay(0.04).click(0).curve(0).legato(0.76).lpf(100).gain(0.8)
 const layers = stack(body, thump)
 
-export const kick = layers
-  .duckorbit(1)
-  .duckdepth(0.55)
-  .duckonset(0.002)
-  .duckattack(0.25)
-  .orbit(0)
+export const kick = layers.duckorbit(1).duckdepth(0.55).duckonset(0.002).duckattack(0.25).orbit(0)
 
 export const rumble = layers
   .delay(1)
