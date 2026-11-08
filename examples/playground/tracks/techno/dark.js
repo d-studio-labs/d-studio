@@ -47,11 +47,7 @@ const build = calm(drone('f2,c3', 'dbasspad'))
   .gain(env([48, 0.15], [68, 0.3]))
   .apply(during(DARK_BUILD))
 
-const outro = calm(drone('f2,c3', 'dbasspad'))
-  .bright(800)
-  .swell(0.1)
-  .gain(0.3)
-  .apply(during(DARK_OUTRO))
+const outro = calm(drone('f2,c3', 'dbasspad')).bright(800).swell(0.1).gain(0.3).apply(during(DARK_OUTRO))
 
 // kept out of the kick's low end: a high-pass at 110 Hz, above its thump (49 Hz), body (65 Hz) and
 // rumble (low-passed at 97 Hz). The sub drone (bass.js) is the only thing down there with it. F2's

@@ -9,4 +9,8 @@ import { HISS_FADE } from './song.js'
 // crossfade dipped the hiss by 3 dB, a swell like small waves. That's twice the power of 1.25, so
 // the gain is lower by √2 (0.025 → 0.018) to keep the same level. Its own orbit: the kick's
 // delay, drive and ducking stay off it
-export const hiss = sound('dhiss').legato(2.5).gain(0.018).orbit(2).apply(fadeIn(...HISS_FADE))
+export const hiss = sound('dhiss')
+  .legato(2.5)
+  .gain(0.018)
+  .orbit(2)
+  .apply(fadeIn(...HISS_FADE))

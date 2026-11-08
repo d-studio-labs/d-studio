@@ -37,23 +37,47 @@ export const PAD = { tex: [8, 104], mid: [24, 124], main: [40, 104] }
 // the pad's level as a multiple of its own gains: full through the build, then down 4 dB (0.6) at
 // the drop and CONSTANT from there, through the climax and the outro. A chord is one four-bar
 // note, so it's sampled where each one starts
-export const PAD_LEVEL = [[66, 1], [72, 0.6]]
+export const PAD_LEVEL = [
+  [66, 1],
+  [72, 0.6],
+]
 // the kick, one part from bar 56 to the end, but for a two-bar breakdown before the climax: its
 // level in over sixteen bars to the drop at 72, full for the main part, out over the outro. Until
 // bar 68 an LFO (one cycle per TEASE_BARS) pulls it down by up to TEASE_DEPTH and lets it back up,
 // so it teases; the depth is gone at 72
-export const KICK = [[56, 102], [104, 128]]
-export const KICK_LEVEL = [[56, 0], [72, 1], [120, 1], [128, 0]]
+export const KICK = [
+  [56, 102],
+  [104, 128],
+]
+export const KICK_LEVEL = [
+  [56, 0],
+  [72, 1],
+  [120, 1],
+  [128, 0],
+]
 export const TEASE_BARS = 3
-export const TEASE_DEPTH = [[56, 0.7], [68, 0.7], [72, 0]]
+export const TEASE_DEPTH = [
+  [56, 0.7],
+  [68, 0.7],
+  [72, 0],
+]
 // the climax (drums.js): over these bars the rumble opens up, and the breakdown takes the kick out
 // in silence, two bars, with no fill, so the drop lands from nothing
 export const RUMBLE_OPEN = [88, 104]
 export const BREAKDOWN = [102, 104]
 // the groove (groove.js), in layers, out for the breakdown, and out by the outro
-export const HATS_OPEN = [[76, 102], [104, 120]]
-export const HATS_CLOSED = [[84, 102], [104, 120]]
-export const SHAKER = [[96, 102], [104, 120]]
+export const HATS_OPEN = [
+  [76, 102],
+  [104, 120],
+]
+export const HATS_CLOSED = [
+  [84, 102],
+  [104, 120],
+]
+export const SHAKER = [
+  [96, 102],
+  [104, 120],
+]
 // the lead (lead.js) and the discreet pad (air.js): they carry through the breakdown
 export const LEAD = [80, 124]
 export const AIR = [88, 124]
@@ -67,10 +91,21 @@ export const DUST = [16, 48]
 export const TICKS = [16, 48]
 // the forest (forest.js): a bed of insects and water drops, the owl's calls, the wolf's howls
 export const FOREST = [12, 72]
-export const OWL = [[28, 30], [44, 46], [60, 62], [124, 126]]
-export const WOLF = [[52, 56], [68, 72]]
+export const OWL = [
+  [28, 30],
+  [44, 46],
+  [60, 62],
+  [124, 126],
+]
+export const WOLF = [
+  [52, 56],
+  [68, 72],
+]
 export const { during, env } = arrangement(BARS)
 
 // in over twelve bars, out over the last eight of a range (a part's level, for a bed that
 // comes and goes)
-export const level = ([from, to]) => (p) => p.mul(gain(env([from, 0], [from + 12, 1], [to - 8, 1], [to, 0])))
+export const level =
+  ([from, to]) =>
+  (p) =>
+    p.mul(gain(env([from, 0], [from + 12, 1], [to - 8, 1], [to, 0])))

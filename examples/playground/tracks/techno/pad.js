@@ -43,11 +43,7 @@ export const tex = held('f2', 'dpadtex').hpf(60).room(0.7).gain(0.35)
 // chord change, so it starts with its own three-second fade-in. At the climax (bar 104) the F and
 // the Fm9 leave (their last notes ring out) and the minor third holds on alone, at a constant
 // level (PAD_LEVEL: down 4 dB at the drop, then steady), to bar 124
-export const pad = stack(
-  tex.apply(during(PAD.tex)),
-  mid.apply(during(PAD.mid)),
-  main.apply(during(PAD.main)),
-)
+export const pad = stack(tex.apply(during(PAD.tex)), mid.apply(during(PAD.mid)), main.apply(during(PAD.main)))
   .mul(gain(env(...PAD_LEVEL)))
   .size(0.9)
   .drive(0.3)
