@@ -17,7 +17,7 @@ const open = sound('~ oh ~ oh ~ oh ~ oh')
 // closed 16ths: the third of every four loud, the others tucked under
 const closed = sound('hh*16')
   .bank('RolandTR909')
-  .gain('[0.10 0.07 0.22 0.07]*4')
+  .gain('[0.10 0.05 0.12 0.07]*4')
   .velocity(drift(0.7, 1, 43))
   .hpf(drift(7000, 10000, 37))
   .pan(sweep(0.4, 0.6, 31))
@@ -25,7 +25,7 @@ const closed = sound('hh*16')
 // a 808 shaker on the 16ths, leaning on the second of every four
 const shaker = sound('sh*16')
   .bank('RolandTR808')
-  .gain('[0.13 0.22 0.13 0.2]*4')
+  .gain('[0.09 0.13 0.08 0.2]*4')
   .hpf(5000)
   .pan(sweep(0.3, 0.7, 23))
 
@@ -35,7 +35,7 @@ export const groove = stack(
   stack(open.apply(during(...HATS_OPEN)), closed.apply(during(...HATS_CLOSED))).cut(1),
   shaker.apply(during(...SHAKER)),
 )
-  .gain(0.035)
+  .gain(0.0175)
   .room(0.45)
   .roomsize(0.9)
   .orbit(4)

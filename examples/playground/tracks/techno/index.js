@@ -16,7 +16,7 @@ export { BARS, BPM } from './song.js'
 export const parts = {
   kick,
   sub,
-  //groove,
+  groove,
   dark,
   pad,
   hiss,
