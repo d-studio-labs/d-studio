@@ -11,10 +11,13 @@ your editor ──:w──▶ d-studio play ──OSC──▶ SuperDirt   (hot-
 
 ## How you'll use it
 
-A live-coding music setup. You write patterns as plain JS files in your own
-editor; D-Studio plays them through SuperCollider's SuperDirt synth engine.
-Save a file and the sound changes on the next beat — no browser, no restart,
-the clock never stops.
+A code-based music production framework. You compose and arrange tracks as
+plain JS files in your own editor — BPM, parts, arrangement, effects — and
+D-Studio plays them through SuperCollider's SuperDirt synth engine, renders
+them to WAV, and checks them. Tracks are ordinary files in your own git repo.
+Play one while you work and every save hot-swaps the pattern with no restart
+and the clock never stops, so you can build a track by ear — or just treat it
+as a studio you script.
 
 1. **Install SuperCollider once** (`brew install --cask supercollider`).
 2. **Scaffold a project** (one command, see [Make your own](#make-your-own)):
