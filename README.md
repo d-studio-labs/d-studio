@@ -9,10 +9,145 @@ SuperDirt makes the sound, Node schedules it in real time.
 your editor ──:w──▶ d-studio play ──OSC──▶ SuperDirt   (hot-swaps the pattern, clock keeps running)
 ```
 
+## TL;DR
+
+**What it is:** a live-coding music setup. You write patterns as plain JS files
+in your own editor; D-Studio plays them through SuperCollider's SuperDirt synth
+engine. Save a file and the sound changes on the next beat — no browser, no
+restart, the clock never stops.
+
+**How you'll use it:**
+
+1. **Install SuperCollider once** (`brew install --cask supercollider`).
+2. **Scaffold a project** (one command, see [Make your own](#make-your-own)):
+   `curl -fsSL https://raw.githubusercontent.com/d-studio-labs/d-studio/main/packages/create/create.sh | sh -s my-track`
+3. **Start the sound engine** in one terminal: `npm run dirt` (wait for
+   `SUPERDIRT READY`).
+4. **Start the clock** in a second terminal: `npm run play`.
+5. **Edit a file in `tracks/<name>/` and save.** The pattern hot-swaps live.
+   That edit-save-listen loop is the whole workflow.
+
+Your music lives in your own project (`tracks/<name>/index.js` exports `BPM`
+and `parts`, one key per instrument lane). This repo is only the engine you
+depend on. Starter tracks `hello` (minimal) and `velvet` (full arrangement)
+are included so you have something to change right away.
+
+Useful extras: `npm run check` (no audio, just verifies your patterns parse),
+`npm run export -- <track>` (render to WAV), `npm run display` (lanes +
+playhead in the browser).
+
+Note: packages come from GitHub Packages, so you need a token with
+`read:packages` in `NPM_TOKEN` first (see [Status](#status)).
+
 This repo is the **framework**: the engine, the composition helpers, and the
 SuperDirt orchestration. Your music — tracks, your own synths, samples — lives
 in your own project, which depends on this as a package, like any other npm
 dependency.
+
+## Guide
+
+### 0. Create a workspace
+
+A workspace is just a folder with a `package.json` that depends on
+`@d-studio-labs/core`. Don't write it by hand — generate it:
+
+```sh
+export NPM_TOKEN=<token with read:packages>   # once, see Status below
+curl -fsSL https://raw.githubusercontent.com/d-studio-labs/d-studio/main/packages/create/create.sh | sh -s my-track
+cd my-track
+npm run dirt-install   # once per machine: SuperDirt quarks
+npm run samples        # drum machine samples (909 + 808)
+npm run dirt           # terminal 1: wait for "SUPERDIRT READY"
+npm run play           # terminal 2: the clock. Now edit tracks/velvet and save
+```
+
+What's inside: `tracks/` (your songs), `synths/` (your own sounds),
+`samples/` (audio files, created by `npm run samples`), `exports/` (rendered
+WAVs). Open the folder in any editor. A new track is a new folder under
+`tracks/` with an `index.js` that exports `BPM` and `parts`; play it with
+`npm run play -- <folder>`.
+
+### 1. Create your own synth
+
+Synths are SuperCollider `SynthDef`s. Any `.scd` file in your project's
+`synths/` folder is loaded when SuperDirt boots.
+
+1. Create `synths/mysaw.scd`:
+
+   ```supercollider
+   (
+   SynthDef(\mysaw, { |out, sustain = 1, pan, freq = 440, speed = 1, accelerate = 0, detune = 0.2|
+     var env = EnvGen.ar(Env.linen(0.002, 0.996, 0.002, 1, -3), timeScale: sustain, doneAction: 2);
+     var f = freq * DirtFreqScale.kr(speed, accelerate, sustain);
+     var sound = Mix(Saw.ar(f * ([-1, 0, 1] * detune).midiratio)) * 0.3;
+     Out.ar(out, DirtPan.ar(sound, ~dirt.numChannels, pan, env));
+   }).add;
+   )
+   ```
+
+2. Restart `npm run dirt` (synths are read at boot; `play` can keep its
+   terminal).
+3. Use it from a track like any sound: `note("c2 eb2 g2").s("mysaw")`. Extra
+   arguments of the SynthDef (here `detune`) become pattern controls:
+   `.detune(0.4)`.
+
+Rules of thumb: take `sustain`, `freq`, `pan`, `speed`, `accelerate`; end in
+`DirtPan.ar`; use `doneAction: 2` so notes free themselves. Stick to core
+UGens so it works without sc3-plugins. `synths/d-studio.scd` in the starter
+project has a dozen working examples to copy from.
+
+### 2. Load custom samples
+
+Put audio in `samples/<name>/` — one folder per sound, the folder name is the
+sound's name. `.wav`, `.aiff` and `.flac` work.
+
+```
+samples/
+  mykick/      kick1.wav  kick2.wav
+  vox/         hello.wav
+```
+
+Restart `npm run dirt` (samples are loaded at boot), then:
+
+```js
+s('mykick') // first file
+s('mykick:1') // second file (files are sorted by name)
+s('vox').speed(0.5)
+```
+
+`npm run samples` downloads Roland TR-909 and TR-808 into the same layout
+(`RolandTR909_bd`, …). For other drum machines pass bank names:
+`npm run samples -- RolandTR707 LinnDrum`. `samples/` is gitignored — keep
+your own recordings backed up elsewhere or remove it from `.gitignore`.
+
+### 3. Connect your MIDI controller
+
+1. Plug it in (USB). `npm run play` scans for devices every 2 seconds, so you
+   can do it before or after starting. It prints `MIDI ✓ <device name>`
+   when it's found.
+2. Touch a knob or key: the engine prints what arrived (CC number or note).
+3. Use knobs as live values and keys as a playable instrument:
+
+   ```js
+   import { cc, knob, around, midi } from '@d-studio-labs/core/midi'
+
+   note('c2 eb2 g2').s('mysaw').lpf(cc(74).range(300, 3000)) // CC 74 → filter, 0–1 scaled
+   // …or by place on the controller: knob(1) … knob(16)
+   // …or as a multiplier around what the track wrote: .mul(gain(around(7, 0, 2)))
+
+   export const parts = {
+     bass: midi(bass), // keys also play this part's sound
+     lead: midi(lead, { muted: true }), // part stays silent, only your keys play it
+   }
+   ```
+
+Knobs must send absolute 0–127 values (not relative). The built-in mapping
+(`knob(i)`, pages, pads) is for the **Arturia MiniLab mkII**
+(`packages/core/lib/controllers/arturia-minilab-mk2.js`). For another
+controller `cc(n)` works as is with whatever CC numbers it sends; for
+`knob(i)` copy that file, fill in your device's CC numbers, and point
+`lib/midi.js` at the copy. MIDI is read by the engine, so it works with
+`npm run play`, not in the browser.
 
 ## Status
 
