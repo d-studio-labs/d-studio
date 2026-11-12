@@ -2,13 +2,6 @@
 
 [![CI](https://github.com/d-studio-labs/d-studio/actions/workflows/ci.yml/badge.svg)](https://github.com/d-studio-labs/d-studio/actions/workflows/ci.yml)
 
-Strudel without the browser. Your own editor is the source of truth,
-SuperDirt makes the sound, Node schedules it in real time.
-
-```
-your editor ──:w──▶ d-studio play ──OSC──▶ SuperDirt   (hot-swaps the pattern, clock keeps running)
-```
-
 ## Overview
 
 D-Studio is a framework for writing music as code. A track is a JS file
