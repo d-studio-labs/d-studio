@@ -9,47 +9,29 @@ SuperDirt makes the sound, Node schedules it in real time.
 your editor ──:w──▶ d-studio play ──OSC──▶ SuperDirt   (hot-swaps the pattern, clock keeps running)
 ```
 
-## TL;DR
-
-**What it is:** a live-coding music setup. You write patterns as plain JS files
-in your own editor; D-Studio plays them through SuperCollider's SuperDirt synth
-engine. Save a file and the sound changes on the next beat — no browser, no
-restart, the clock never stops.
-
-**How you'll use it:**
-
-1. **Install SuperCollider once** (`brew install --cask supercollider`).
-2. **Scaffold a project** (one command, see [Make your own](#make-your-own)):
-   `curl -fsSL https://raw.githubusercontent.com/d-studio-labs/d-studio/main/packages/create/create.sh | sh -s my-track`
-3. **Start the sound engine** in one terminal: `npm run dirt` (wait for
-   `SUPERDIRT READY`).
-4. **Start the clock** in a second terminal: `npm run play`.
-5. **Edit a file in `tracks/<name>/` and save.** The pattern hot-swaps live.
-   That edit-save-listen loop is the whole workflow.
-
-Your music lives in your own project (`tracks/<name>/index.js` exports `BPM`
-and `parts`, one key per instrument lane). This repo is only the engine you
-depend on. Starter tracks `hello` (minimal) and `velvet` (full arrangement)
-are included so you have something to change right away.
-
-Useful extras: `npm run check` (no audio, just verifies your patterns parse),
-`npm run export -- <track>` (render to WAV), `npm run display` (lanes +
-playhead in the browser).
-
-Note: packages come from GitHub Packages, so you need a token with
-`read:packages` in `NPM_TOKEN` first (see [Status](#status)).
+Write music as plain JavaScript in your favourite editor, hit save, and hear it
+change on the next beat. No browser tab, no restart, the clock never stops.
 
 This repo is the **framework**: the engine, the composition helpers, and the
 SuperDirt orchestration. Your music — tracks, your own synths, samples — lives
 in your own project, which depends on this as a package, like any other npm
-dependency.
+dependency. Scaffolding one takes a single command (see
+[Create a workspace](#0-create-a-workspace)), and it comes with two starter
+tracks, `hello` (minimal) and `velvet` (fully arranged), so you have something
+to play with right away.
+
+Handy once you're running: `npm run check` (verify your patterns parse, no
+audio), `npm run export -- <track>` (render to WAV), `npm run display` (lanes
+and playhead in the browser).
 
 ## Guide
 
 ### 0. Create a workspace
 
 A workspace is just a folder with a `package.json` that depends on
-`@d-studio-labs/core`. Don't write it by hand — generate it:
+`@d-studio-labs/core`. Don't write it by hand — generate it. You need
+[SuperCollider](https://supercollider.github.io/) installed first
+(`brew install --cask supercollider`, then open it once for Gatekeeper):
 
 ```sh
 export NPM_TOKEN=<token with read:packages>   # once, see Status below
