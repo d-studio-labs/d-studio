@@ -9,50 +9,44 @@ SuperDirt makes the sound, Node schedules it in real time.
 your editor ──:w──▶ d-studio play ──OSC──▶ SuperDirt   (hot-swaps the pattern, clock keeps running)
 ```
 
-## How you'll use it
+## Overview
 
-A code-based music production framework. You compose and arrange tracks as
-plain JS files in your own editor — BPM, parts, arrangement, effects — and
-D-Studio plays them through SuperCollider's SuperDirt synth engine, renders
-them to WAV, and checks them. Tracks are ordinary files in your own git repo.
-Play one while you work and every save hot-swaps the pattern with no restart
-and the clock never stops, so you can build a track by ear — or just treat it
-as a studio you script.
+D-Studio is a framework for writing music as code. A track is a JS file
+that defines a BPM and a set of parts. The engine schedules the parts and
+sends them to SuperCollider's SuperDirt, which makes the sound. The same track
+can also be rendered to WAV, checked for silent parts, or displayed in the
+browser. While a track is playing, saving a file it imports replaces the
+running pattern without stopping the clock.
 
-1. **Install SuperCollider once** (`brew install --cask supercollider`).
-2. **Scaffold a project** (one command, see [Make your own](#make-your-own)):
+Basic use:
+
+1. Install SuperCollider (`brew install --cask supercollider`).
+2. Create a project (see [Make your own](#make-your-own)):
    `curl -fsSL https://raw.githubusercontent.com/d-studio-labs/d-studio/main/packages/create/create.sh | sh -s my-track`
-3. **Start the sound engine** in one terminal: `npm run dirt` (wait for
-   `SUPERDIRT READY`).
-4. **Start the clock** in a second terminal: `npm run play`.
-5. **Edit a file in `tracks/<name>/` and save.** The pattern hot-swaps live.
-   That edit-save-listen loop is the whole workflow.
+3. Start SuperDirt in one terminal: `npm run dirt` (wait for `SUPERDIRT READY`).
+4. Start the clock in a second terminal: `npm run play`.
+5. Edit a file in `tracks/<name>/` and save.
 
-Your music lives in your own project (`tracks/<name>/index.js` exports `BPM`
-and `parts`, one key per instrument lane). This repo is only the engine you
-depend on. Starter tracks `hello` (minimal) and `velvet` (full arrangement)
-are included so you have something to change right away.
+Your project is a separate repo that depends on `@d-studio-labs/core`. This
+repo contains only the framework: the engine, the composition helpers and the
+SuperDirt setup. The scaffolded project includes two tracks, `hello` (minimal)
+and `velvet` (a full arrangement).
 
-Useful extras: `npm run check` (no audio, just verifies your patterns parse),
-`npm run export -- <track>` (render to WAV), `npm run display` (lanes +
+Other commands: `npm run check` (parse patterns, no audio),
+`npm run export -- <track>` (render to WAV), `npm run display` (lanes and
 playhead in the browser).
 
-Note: packages come from GitHub Packages, so you need a token with
-`read:packages` in `NPM_TOKEN` first (see [Status](#status)).
-
-This repo is the **framework**: the engine, the composition helpers, and the
-SuperDirt orchestration. Your music — tracks, your own synths, samples — lives
-in your own project, which depends on this as a package, like any other npm
-dependency.
+The packages are on GitHub Packages, which requires a token with
+`read:packages` in `NPM_TOKEN` (see [Status](#status)).
 
 ## Guide
 
 ### 0. Create a workspace
 
-A workspace is just a folder with a `package.json` that depends on
-`@d-studio-labs/core`. Don't write it by hand — generate it. You need
-[SuperCollider](https://supercollider.github.io/) installed first
-(`brew install --cask supercollider`, then open it once for Gatekeeper):
+A workspace is a folder with a `package.json` that depends on
+`@d-studio-labs/core`. The scaffolder creates it. SuperCollider must be
+installed first (`brew install --cask supercollider`, then open it once for
+Gatekeeper):
 
 ```sh
 export NPM_TOKEN=<token with read:packages>   # once, see Status below
@@ -61,14 +55,13 @@ cd my-track
 npm run dirt-install   # once per machine: SuperDirt quarks
 npm run samples        # drum machine samples (909 + 808)
 npm run dirt           # terminal 1: wait for "SUPERDIRT READY"
-npm run play           # terminal 2: the clock. Now edit tracks/velvet and save
+npm run play           # terminal 2: the clock. Edit tracks/velvet and save
 ```
 
-What's inside: `tracks/` (your songs), `synths/` (your own sounds),
-`samples/` (audio files, created by `npm run samples`), `exports/` (rendered
-WAVs). Open the folder in any editor. A new track is a new folder under
-`tracks/` with an `index.js` that exports `BPM` and `parts`; play it with
-`npm run play -- <folder>`.
+Project layout: `tracks/` (songs), `synths/` (your own SynthDefs), `samples/`
+(audio files, created by `npm run samples`), `exports/` (rendered WAVs). A new
+track is a new folder under `tracks/` with an `index.js` that exports `BPM` and
+`parts`; play it with `npm run play -- <folder>`.
 
 ### 1. Create your own synth
 
@@ -94,10 +87,10 @@ Synths are SuperCollider `SynthDef`s. Any `.scd` file in your project's
    arguments of the SynthDef (here `detune`) become pattern controls:
    `.detune(0.4)`.
 
-Rules of thumb: take `sustain`, `freq`, `pan`, `speed`, `accelerate`; end in
-`DirtPan.ar`; use `doneAction: 2` so notes free themselves. Stick to core
-UGens so it works without sc3-plugins. `synths/d-studio.scd` in the starter
-project has a dozen working examples to copy from.
+A SynthDef should take `sustain`, `freq`, `pan`, `speed` and `accelerate`, end
+in `DirtPan.ar`, and use `doneAction: 2` so notes free themselves. Use core
+UGens only if it has to work without sc3-plugins. `synths/d-studio.scd` in the
+starter project has working examples.
 
 ### 2. Load custom samples
 
