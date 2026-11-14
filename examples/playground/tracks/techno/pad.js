@@ -12,6 +12,7 @@
 // The drive sits before the room on the orbit, so the reverbs come out unsaturated.
 import { createParam, gain, note, stack } from '@strudel/core'
 import '@d-studio-labs/core/fx'
+import '@d-studio-labs/core/space'
 import { BPM, during, env, PAD, PAD_LEVEL } from './song.js'
 
 // SuperDirt's .attack/.release envelope runs from the note's start: attack, then hold
@@ -48,4 +49,8 @@ export const pad = stack(tex.apply(during(PAD.tex)), mid.apply(during(PAD.mid)),
   .size(0.9)
   .drive(0.3)
   .drivetone(0.6)
+  // the whole orbit round the head, turning once every 16 bars (the drive and rooms are already in it)
+  .sphere(1)
+  .width(0.25)
+  .spin(1 / 16)
   .orbit(3)

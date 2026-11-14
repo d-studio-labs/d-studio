@@ -37,12 +37,32 @@
         grid-template-rows: 1fr auto;
         grid-template-areas: 'lanes' 'status';
       }
-      #lanes {
+      #lanes,
+      #halo {
         grid-area: lanes;
         width: 100%;
         height: 100%;
         min-height: 0;
         display: block;
+      }
+      canvas[hidden] {
+        display: none !important;
+      }
+      nav {
+        display: flex;
+        gap: 2px;
+      }
+      nav button {
+        font: inherit;
+        color: var(--ink-dim);
+        background: none;
+        border: 1px solid transparent;
+        padding: 0 8px;
+        cursor: pointer;
+      }
+      nav button[aria-selected='true'] {
+        color: var(--accent);
+        border-color: var(--line);
       }
       footer {
         grid-area: status;
@@ -75,7 +95,12 @@
   </head>
   <body>
     <canvas id="lanes"></canvas>
+    <canvas id="halo" hidden></canvas>
     <footer>
+      <nav role="tablist">
+        <button role="tab" data-mode="lanes" aria-selected="true" title="key 1">lanes</button>
+        <button role="tab" data-mode="halo" aria-selected="false" title="key 2">halo</button>
+      </nav>
       <span id="track"></span>
       <span id="state">○ waiting for d-studio play</span>
       <span id="time"></span>

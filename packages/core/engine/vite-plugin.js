@@ -3,6 +3,8 @@
 
 import { readdirSync, existsSync } from 'node:fs'
 import { join } from 'node:path'
+import dgram from 'node:dgram'
+import { decode } from './osc.mjs'
 
 const TRACK_ENTRY = /\/tracks\/([^/]+)\/index\.js$/
 const VIRTUAL_TRACKS = 'virtual:d-studio-tracks'
@@ -37,6 +39,18 @@ export function studio({ projectDir = process.cwd() } = {}) {
     },
 
     configureServer(server) {
+      // the halo's field: superdirt/space.scd sends /field (30 floats, 60 Hz) here as UDP;
+      // it goes on to the page as it comes. Not listening is fine: the halo then follows the score
+      const port = Number(process.env.DSTUDIO_FIELD_PORT ?? 57130)
+      const sock = dgram.createSocket({ type: 'udp4', reuseAddr: true })
+      sock.on('error', (err) => server.config.logger.warn(`halo field: port ${port}: ${err.message}`))
+      sock.on('message', (buf) => {
+        const { address, args } = decode(buf)
+        if (address === '/field') server.ws.send({ type: 'custom', event: 'studio:field', data: args })
+      })
+      sock.bind(port, '127.0.0.1')
+      server.httpServer?.on('close', () => sock.close())
+
       server.middlewares.use('/__engine', (req, res) => {
         if (req.method !== 'POST') {
           res.setHeader('content-type', 'application/json')

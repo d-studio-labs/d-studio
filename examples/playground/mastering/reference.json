@@ -1,0 +1,48 @@
+{
+  "lufs": -13.69,
+  "tp": -1,
+  "bands": [
+    {
+      "name": "sub",
+      "lo": 20,
+      "hi": 60,
+      "relative": -5.22
+    },
+    {
+      "name": "bass",
+      "lo": 60,
+      "hi": 150,
+      "relative": -4.67
+    },
+    {
+      "name": "lowMid",
+      "lo": 150,
+      "hi": 400,
+      "relative": -7.98
+    },
+    {
+      "name": "mid",
+      "lo": 400,
+      "hi": 1000,
+      "relative": -9.43
+    },
+    {
+      "name": "presence",
+      "lo": 1000,
+      "hi": 3000,
+      "relative": -12.43
+    },
+    {
+      "name": "highMid",
+      "lo": 3000,
+      "hi": 8000,
+      "relative": -16.76
+    },
+    {
+      "name": "air",
+      "lo": 8000,
+      "hi": 18000,
+      "relative": -19.74
+    }
+  ]
+}

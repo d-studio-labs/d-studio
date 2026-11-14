@@ -27,7 +27,7 @@ and `velvet` (a full arrangement).
 
 Other commands: `npm run check` (parse patterns, no audio),
 `npm run export -- <track>` (render to WAV), `npm run display` (lanes and
-playhead in the browser).
+playhead in the browser, plus a **halo** tab: where the sound sits round the listener).
 
 The packages are on GitHub Packages, which requires a token with
 `read:packages` in `NPM_TOKEN` (see [Status](#status)).
@@ -230,7 +230,7 @@ under [The CLI](#the-cli) below, scoped to this one project):
 npm run check                     # parses every part, prints events — no audio needed
 npm run export -- velvet          # renders to exports/velvet.wav
 npm run test -- velvet --from 32  # flags any part that's effectively silent
-npm run display                   # lanes + playhead in the browser
+npm run display                   # lanes + playhead in the browser; keys 1 lanes, 2 halo (the sphere)
 ```
 
 ## Packages
@@ -300,7 +300,7 @@ d-studio test -- velvet --from 32   # solo-renders each part, flags any effectiv
                                      # (for an arranged track, point --from at a section where
                                      # every part should be active — not bar 0, which may be a
                                      # quiet intro by design)
-d-studio display          # lanes + playhead in the browser, following d-studio play's clock
+d-studio display          # lanes + halo (the ambisonic sphere) in the browser, following d-studio play's clock
 ```
 
 `d-studio play`/`check` with no track named use `tracks/.default` (one line,
