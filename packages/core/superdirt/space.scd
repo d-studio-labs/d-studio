@@ -41,7 +41,7 @@ if (mode == "off" or: { \FoaPanB.asClass.isNil }) {
 	if (mode != "off") { "SPACE: off — ATK not installed (Quarks.install(\"atk-sc3\"))".postln } { "SPACE: off".postln };
 } {
 	var ambiBus = Bus.audio(server, 4);   // first-order B-format: W X Y Z
-	// per orbit, for the display's halo: 4 channels of its ambisonic part, then 2 of its stereo remainder
+	// per orbit, for the display's spatial view: 4 channels of its ambisonic part, then 2 of its stereo remainder
 	var orbBus = Bus.audio(server, 6 * dirt.orbits.size);
 	var decoder = if (mode == "stereo") {
 		FoaDecoderMatrix.newStereo
@@ -174,7 +174,7 @@ if (mode == "off" or: { \FoaPanB.asClass.isNil }) {
 	server.sync;
 	~dstudioSpace = Synth.before(~dstudioMaster, \dstudio_space, [in: ambiBus.index, out: ~dstudioMasterBus.index]);
 
-	// the display's halo view: what each orbit puts into the sphere right now, 60 times a
+	// the display's spatial view: what each orbit puts into the sphere right now, 60 times a
 	// second. Per orbit, its ambisonic part plus its stereo remainder (laid at ±45°) is one
 	// first-order field, and the ten smoothed products of W X Y Z are all the browser needs
 	// to compute the energy that orbit has in any direction. Forwarded as /field (ten

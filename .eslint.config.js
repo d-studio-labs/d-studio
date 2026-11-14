@@ -23,12 +23,12 @@ export default [
   },
   {
     files: ['packages/core/engine/**/*.{js,mjs}', '.eslint.config.js'],
-    ignores: ['packages/core/engine/main.js', 'packages/core/engine/viz.js', 'packages/core/engine/halo.js'],
+    ignores: ['packages/core/engine/main.js', 'packages/core/engine/viz.js', 'packages/core/engine/spatial.js'],
     languageOptions: { globals: globals.node },
   },
   // the display: served through vite-plugin.js and run in the browser, following play's clock
   {
-    files: ['packages/core/engine/main.js', 'packages/core/engine/viz.js', 'packages/core/engine/halo.js'],
+    files: ['packages/core/engine/main.js', 'packages/core/engine/viz.js', 'packages/core/engine/spatial.js'],
     languageOptions: { globals: globals.browser },
   },
   // a part muted by commenting it out leaves its import unused: worth a note, not a failure
