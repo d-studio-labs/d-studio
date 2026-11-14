@@ -95,6 +95,14 @@
       #legend .row.pin {
         outline: 1px solid var(--accent);
       }
+      #legend .crowd {
+        white-space: pre;
+        padding: 4px 4px 0;
+        color: #e0743a;
+      }
+      #legend .crowd:empty {
+        display: none;
+      }
       #legend .sw {
         width: 8px;
         height: 8px;
@@ -109,6 +117,32 @@
         height: 100%;
         background: currentColor;
         transform-origin: left;
+      }
+      #views {
+        position: absolute;
+        top: 10px;
+        left: 12px;
+        z-index: 2;
+        display: flex;
+        gap: 4px;
+        flex-wrap: wrap;
+        max-width: 62%;
+        font-size: 12px;
+      }
+      #views[hidden] {
+        display: none;
+      }
+      #views button {
+        font: inherit;
+        color: var(--ink-dim);
+        background: rgb(14 14 13 / 0.7);
+        border: 1px solid var(--line);
+        padding: 2px 8px;
+        cursor: pointer;
+      }
+      #views button.on {
+        color: var(--accent);
+        border-color: var(--accent);
       }
       footer {
         grid-area: status;

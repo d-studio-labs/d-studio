@@ -1,6 +1,6 @@
 // ── Rumble kick, after the Ableton rack ──
-// Two layers, each a different kick, shaped after the two waveforms in the rack:
-// a fat sine (`body`) and a short pitch-dropped sub thump (`thump`). Both go into
+// The kick is a TR-909 bass drum (KIT below; the TR-808's and the two synthesised sine layers,
+// shaped after the rack's two waveforms, are the alternatives). Both go into
 // the rack's two chains:
 //   dry  (orbit 0)  the layers as they are: the kick you hear
 //   wet  (orbit 1)  the same layers → delay (1/16, 50% feedback) → drive (the Amp)
@@ -13,7 +13,7 @@
 // each chain has its own orbit. The dry orbit is untouched (no drive: the body stays
 // a clean sine). The rack's drum buss and EQ8 on the group are only the master's glue
 // and tape (master.scd); there's no EQ, so no low boost and no mud cut.
-import { createParam, gain, note, sine, stack } from '@strudel/core'
+import { createParam, gain, note, sine, sound, stack } from '@strudel/core'
 import { SIXTEENTH } from '@d-studio-labs/core/fx'
 import { during, env, KICK, KICK_LEVEL, RUMBLE_OPEN, TEASE_BARS, TEASE_DEPTH } from './song.js'
 
@@ -34,7 +34,26 @@ export const thump = note('g1*4')
   .legato(0.76)
   .lpf(100)
   .gain(0.8)
-const layers = stack(body, thump)
+
+// ── The kick's source: KIT picks what both chains play ──
+//   club    Dirt-Samples' clubkick 1: a short, bright kick (0.2 s) that settles on 63.5 Hz; speed 1.03
+//           tunes it to C2 (65 Hz, the fifth of the pad's F, where the synthesised body was), with the
+//           soft G1 sub (thump) under it for the weight the sample's short tail doesn't have
+//   909     the TR-909's short bass drum (Bassdrum-03), tuned to Ab1 (52 Hz) by speed 0.91
+//   808     the TR-808's bass drum BD2550 (n 13): a round boom on 49.5 Hz, G1, as it is; its 1.5 s tail
+//           is cut at 0.8 of a beat
+//   dkick   the two synthesised sine layers above
+// Measured from the samples (spectra of the attack and the tail), not guessed. The Roland samples are
+// dull: their first 12 ms hold 30 to 37 dB less above 1.5 kHz than below 120 Hz, the clubkicks' 6 to 9 dB, so
+// the 909 and 808 read as filtered
+export const KIT = 'club'
+const kits = {
+  club: stack(sound('clubkick*4').n(0).speed(1.03).legato(0.5).release(0.03).gain(0.7), thump.gain(0.6)),
+  909: sound('bd*4').bank('RolandTR909').n(2).speed(0.91).legato(0.5).release(0.03).gain(0.8),
+  808: sound('bd*4').bank('RolandTR808').n(13).legato(0.8).release(0.06).gain(0.8),
+  dkick: stack(body, thump),
+}
+const layers = kits[KIT]
 
 // ducks the rumble (orbit 1), the dark drone (11), the sub (5), the lead (13) and the discreet pad
 // (14), each less than the one before it

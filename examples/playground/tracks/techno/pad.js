@@ -53,4 +53,7 @@ export const pad = stack(tex.apply(during(PAD.tex)), mid.apply(during(PAD.mid)),
   .sphere(1)
   .width(0.25)
   .spin(1 / 16)
+  // a canopy over the listener, lifting from 11° to 43° above ear level as the layers join
+  .elev(env([8, 0.03], [72, 0.12]))
+  .glide(3)
   .orbit(3)
