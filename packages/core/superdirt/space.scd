@@ -41,6 +41,8 @@ if (mode == "off" or: { \FoaPanB.asClass.isNil }) {
 	if (mode != "off") { "SPACE: off — ATK not installed (Quarks.install(\"atk-sc3\"))".postln } { "SPACE: off".postln };
 } {
 	var ambiBus = Bus.audio(server, 4);   // first-order B-format: W X Y Z
+	// per orbit, for the display's halo: 4 channels of its ambisonic part, then 2 of its stereo remainder
+	var orbBus = Bus.audio(server, 6 * dirt.orbits.size);
 	var decoder = if (mode == "stereo") {
 		FoaDecoderMatrix.newStereo
 	} {
@@ -51,10 +53,10 @@ if (mode == "off" or: { \FoaPanB.asClass.isNil }) {
 
 	// SuperDirt's dirt_delay (core-synths-global.scd) as it is, plus the way out
 	// into the sphere. space 0 sends everything to the orbit, as before
-	SynthDef("dirt_delay" ++ n, { |dryBus, effectBus, gate = 1, delaytime, delayfeedback, delaySend = 1, delayAmp = 1, lock = 0, cps = 1,
+	SynthDef("dirt_delay" ++ n, { |dryBus, effectBus, orbitIndex = 0, gate = 1, delaytime, delayfeedback, delaySend = 1, delayAmp = 1, lock = 0, cps = 1,
 		cycle = 0, space = 0, azim = 0, spin = 0, elev = 0, glide = 0.3, delayfreq = 0, delaywidth = 4, delayroom = 0,
 		delaydiffuse = 0, delayspread = 0, delaywander = 0, drylevel = 1|
-		var echoes, copy, env, angle, spun, inSphere, inRoom, stereo, own, banded, dryFix, maxDelayTime = 4;
+		var echoes, copy, env, angle, spun, inSphere, inRoom, stereo, own, banded, dryFix, pan, maxDelayTime = 4;
 		var input = In.ar(dryBus, n);
 		// the dry sound as the notes left it, before the delay's send scales `input`
 		var dry = input;
@@ -130,12 +132,14 @@ if (mode == "off" or: { \FoaPanB.asClass.isNil }) {
 		stereo = echoes * (1 - inSphere);
 		Out.ar(effectBus, (copy * (1 - inSphere)) + (stereo * (1 - inRoom)) + dryFix);
 		Out.ar(dryBus, stereo * inRoom);
-		Out.ar(ambiBus, FoaPanB.ar(Mix(echoes + copy) * inSphere * 0.7071, angle, elev.lag(glide) * 2pi));
+		pan = FoaPanB.ar(Mix(echoes + copy) * inSphere * 0.7071, angle, elev.lag(glide) * 2pi);
+		Out.ar(ambiBus, pan);
+		Out.ar(orbBus.index + (orbitIndex * 6), pan);
 	}, [\ir, \ir]).add;
 
 	// the whole orbit into the sphere: just before dirt_monitor, after the duck,
 	// so the kick's dips reach it. sphere 0 leaves both buses as they were
-	SynthDef("dirt_sphere" ++ n, { |dryBus, effectBus, gate = 1, cps = 1, cycle = 0, sphere = 0, width = 0.25, azim = 0, spin = 0, roll = 0, elev = 0, glide = 0.3|
+	SynthDef("dirt_sphere" ++ n, { |dryBus, effectBus, orbitIndex = 0, gate = 1, cps = 1, cycle = 0, sphere = 0, width = 0.25, azim = 0, spin = 0, roll = 0, elev = 0, glide = 0.3|
 		var amount = sphere.lag(glide);
 		var dry = In.ar(dryBus, n), wet = In.ar(effectBus, n);
 		var sig = (dry + wet) * amount, half = width.lag(glide) * 2pi;
@@ -156,8 +160,10 @@ if (mode == "off" or: { \FoaPanB.asClass.isNil }) {
 		EnvGen.kr(Env.asr(0, 1, 0.01), gate, doneAction: 2);
 		b = FoaTumble.ar(FoaRotate.ar(b, turn), over);
 		Out.ar(ambiBus, b);
+		Out.ar(orbBus.index + (orbitIndex * 6), b);
 		ReplaceOut.ar(dryBus, dry * (1 - amount));
 		ReplaceOut.ar(effectBus, wet * (1 - amount));
+		Out.ar(orbBus.index + (orbitIndex * 6) + 4, (dry + wet) * (1 - amount));
 	}).add;
 
 	// the decoder: the whole sphere to stereo, into the master bus
@@ -167,6 +173,25 @@ if (mode == "off" or: { \FoaPanB.asClass.isNil }) {
 	}).add;
 	server.sync;
 	~dstudioSpace = Synth.before(~dstudioMaster, \dstudio_space, [in: ambiBus.index, out: ~dstudioMasterBus.index]);
+
+	// the display's halo view: what each orbit puts into the sphere right now, 60 times a
+	// second. Per orbit, its ambisonic part plus its stereo remainder (laid at ±45°) is one
+	// first-order field, and the ten smoothed products of W X Y Z are all the browser needs
+	// to compute the energy that orbit has in any direction. Forwarded as /field (ten
+	// numbers per orbit) to DSTUDIO_FIELD_PORT (default 57130), where `d-studio display` listens
+	SynthDef(\dstudio_field, { |base|
+		var pairs = [[0, 0], [0, 1], [0, 2], [0, 3], [1, 1], [1, 2], [1, 3], [2, 2], [2, 3], [3, 3]];
+		var stats = dirt.orbits.size.collect { |o|
+			var x = In.ar(base + (o * 6), 6);
+			var f = x[0..3] + FoaPanB.ar(x[4], pi / 4, 0) + FoaPanB.ar(x[5], pi.neg / 4, 0);
+			pairs.collect { |p| A2K.kr(LagUD.ar(f[p[0]] * f[p[1]], 0.004, 0.09)) }
+		}.flatten;
+		SendReply.kr(Impulse.kr(60), '/dstudio/field', stats);
+	}).add;
+	server.sync;
+	~dstudioField = Synth.before(~dstudioMaster, \dstudio_field, [base: orbBus.index]);
+	~fieldAddr = NetAddr("127.0.0.1", ("DSTUDIO_FIELD_PORT".getenv ?? "57130").asInteger);
+	OSCdef(\dstudioField, { |msg| ~fieldAddr.sendMsg('/field', *msg[3..]) }, '/dstudio/field');
 
 	// the orbits' delay learns the new controls, the sphere stage goes in just
 	// before the monitor, and the chain is rebuilt (setting outBus rebuilds it)

@@ -30,6 +30,7 @@
     "@julusian/midi": "^3.8.1",
     "@strudel/core": "^1.2.6",
     "@strudel/mini": "^1.2.6",
+    "ogl": "^1.0.11",
     "vite": "^7.0.0"
   }
 }

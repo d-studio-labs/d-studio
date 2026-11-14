@@ -31,7 +31,7 @@ function keyOf(value) {
  *   playing: boolean,
  *   onBar: (bar: string) => void,
  * }} getState read once per frame
- * @returns {void}
+ * @returns {{ start: () => void, stop: () => void }} nothing draws until `start()`
  */
 export function createViz(canvas, getState) {
   const ctx = canvas.getContext('2d')
@@ -45,6 +45,8 @@ export function createViz(canvas, getState) {
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
   }
   new ResizeObserver(resize).observe(canvas)
+
+  let raf = 0
 
   function frame() {
     const { lanes, now, playing, onBar } = getState()
@@ -124,7 +126,15 @@ export function createViz(canvas, getState) {
       lastBar = bar
       onBar(bar)
     }
-    requestAnimationFrame(frame)
+    raf = requestAnimationFrame(frame)
   }
-  requestAnimationFrame(frame)
+  return {
+    start() {
+      if (!raf) raf = requestAnimationFrame(frame)
+    },
+    stop() {
+      cancelAnimationFrame(raf)
+      raf = 0
+    },
+  }
 }

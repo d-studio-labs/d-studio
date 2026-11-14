@@ -103,20 +103,60 @@ fetch('/__engine')
   .then(hear)
   .catch(() => {})
 
-createViz($('#lanes'), () => {
+// the sound field SuperCollider measures (superdirt/space.scd → vite-plugin.js), 60 Hz;
+// stale after half a second, and Halo falls back to placing things from the score
+let field = null
+const fieldNow = () => (field && performance.now() - field.at < 500 ? field.v : null)
+
+// one tick of shared state per frame, whichever view is drawing
+function tick() {
   const cycle = now()
   renderState()
   renderTime(cycle)
-  return {
-    lanes,
-    now: cycle,
-    playing: alive() && !!engine.playing,
-    onBar: (bar) => (status.bar.textContent = bar),
+  return { lanes, now: cycle, playing: alive() && !!engine.playing }
+}
+
+const views = {
+  lanes: createViz($('#lanes'), () => ({ ...tick(), onBar: (bar) => (status.bar.textContent = bar) })),
+}
+
+// ── Modes: lanes (the punchcard) and halo (the sound field round the listener) ──
+// Only the shown view runs its frame loop. Halo (and ogl) load on first use.
+const canvases = { lanes: $('#lanes'), halo: $('#halo') }
+const tabs = [...document.querySelectorAll('nav button')]
+let mode = null
+
+async function show(next) {
+  if (!Object.hasOwn(canvases, next) || next === mode) return
+  if (next === 'halo' && !views.halo) {
+    const { createHalo } = await import('./halo.js')
+    views.halo ??= createHalo(canvases.halo, () => {
+      const s = tick()
+      const cps = engine?.anchor?.cps ?? (engine?.bpm ? engine.bpm / 240 : 0)
+      const bar = `bar ${Math.floor(s.now) + 1} · ${Math.floor((s.now % 1) * 4) + 1}/4`
+      if (status.bar.textContent !== bar) status.bar.textContent = bar
+      return { ...s, cps, field: fieldNow() }
+    })
   }
+  views[mode]?.stop()
+  mode = next
+  for (const [name, canvas] of Object.entries(canvases)) canvas.hidden = name !== next
+  tabs.forEach((b) => b.setAttribute('aria-selected', String(b.dataset.mode === next)))
+  history.replaceState(null, '', next === 'lanes' ? location.pathname : `#${next}`)
+  views[next].start()
+}
+
+tabs.forEach((b) => b.addEventListener('click', () => show(b.dataset.mode)))
+addEventListener('keydown', (e) => {
+  if (e.metaKey || e.ctrlKey || e.altKey) return
+  if (e.key === '1') show('lanes')
+  if (e.key === '2') show('halo')
 })
+show(location.hash === '#halo' ? 'halo' : 'lanes')
 
 if (import.meta.hot) {
   import.meta.hot.on('studio:engine', hear)
+  import.meta.hot.on('studio:field', (v) => (field = { at: performance.now(), v }))
   // syntax errors: keep the lanes, show the error instead of an overlay
   import.meta.hot.on('vite:error', ({ err }) =>
     say(`${err.message.split('\n')[0]} — showing the last good version`, 'error'),
