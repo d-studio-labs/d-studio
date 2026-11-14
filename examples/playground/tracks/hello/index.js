@@ -8,7 +8,7 @@ import { gain } from '@strudel/core'
 import { kick, click } from './drums.js'
 import { main, mid, tex } from './pad.js'
 import { bass } from './bass.js'
-import { hiss } from './noise.js'
+import { hiss, crackle } from './noise.js'
 import { melody } from './melody.js'
 import { tour, sweep, roll, circle, swing, echo, chord } from './space.js'
 import { BPM, BARS, during, env } from './song.js'
@@ -25,6 +25,7 @@ export const parts = {
   // the bed, then the pads one layer at a time: the low F, the minor third, the chord. Each note
   // has its own three-second fade in and out (pad.js), so they enter and leave without a level curve
   hiss,
+  crackle,
   tex: tex.apply(during([4, 124])),
   mid: mid.apply(during([12, 116])),
   main: main.apply(during([24, 108])),
