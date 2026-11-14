@@ -1,4 +1,4 @@
-// ── hello: a demo for the display's halo tab — a whole track, 88 bars, every kind of 3D placement ──
+// ── hello: a demo for the display's halo tab — a whole track, 128 bars, every kind of 3D placement ──
 // Run `npm run play -- hello` and `npm run display`, open the halo (key 2), use headphones.
 // song.js has the shape (intro, build, groove, breakdown, groove 2, outro). Each part is on its own
 // orbit, so each has its own colour in the halo; space.js is where each placement is written.
@@ -25,118 +25,118 @@ export const parts = {
   // the bed, then the pads one layer at a time: the low F, the minor third, the chord. Each note
   // has its own three-second fade in and out (pad.js), so they enter and leave without a level curve
   hiss,
-  tex: tex.apply(during([4, 84])),
-  mid: mid.apply(during([8, 80])),
-  main: main.apply(during([16, 76])),
+  tex: tex.apply(during([4, 124])),
+  mid: mid.apply(during([12, 116])),
+  main: main.apply(during([24, 108])),
   // muted: the music box (melody.js). Uncomment to bring it back, over the intro and the breakdown
   // melody: melody.apply(
   //   part(
   //     [
-  //       [8, 32],
-  //       [48, 64],
-  //       [72, 80],
+  //       [12, 40],
+  //       [68, 96],
+  //       [108, 120],
   //     ],
-  //     [8, 0],
-  //     [16, 1],
-  //     [30, 1],
-  //     [32, 0],
-  //     [48, 0],
-  //     [52, 1],
-  //     [62, 1],
-  //     [64, 0],
-  //     [72, 0],
-  //     [74, 1],
-  //     [78, 1],
-  //     [80, 0],
+  //     [12, 0],
+  //     [24, 1],
+  //     [38, 1],
+  //     [40, 0],
+  //     [68, 0],
+  //     [72, 1],
+  //     [94, 1],
+  //     [96, 0],
+  //     [108, 0],
+  //     [110, 1],
+  //     [118, 1],
+  //     [120, 0],
   //   ),
   // ),
-  // the dub chord: ghost echoes at first, open by bar 24, the last thing to leave but the pads
-  chord: chord.apply(part([[12, 80]], [12, 0], [24, 1], [72, 1], [80, 0])),
+  // the dub chord: ghost echoes at first, open by bar 32, the last thing to leave but the pads
+  chord: chord.apply(part([[16, 116]], [16, 0], [32, 1], [104, 1], [116, 0])),
   // the pulse: the kick fades in over eight bars, leaves for the breakdown, and goes first in the outro
   kick: kick.apply(
     part(
       [
-        [16, 48],
-        [56, 76],
+        [24, 64],
+        [80, 112],
       ],
-      [16, 0],
-      [24, 1],
-      [66, 1],
-      [76, 0],
+      [24, 0],
+      [32, 1],
+      [104, 1],
+      [112, 0],
     ),
   ),
   bass: bass.apply(
     part(
       [
-        [24, 48],
-        [56, 76],
+        [32, 64],
+        [80, 116],
       ],
-      [24, 0],
-      [28, 1],
-      [72, 1],
-      [76, 0],
+      [32, 0],
+      [36, 1],
+      [108, 1],
+      [116, 0],
     ),
   ),
   click: click.apply(
     part(
       [
-        [32, 48],
-        [56, 68],
+        [40, 64],
+        [80, 100],
       ],
-      [32, 1],
-      [68, 1],
+      [40, 1],
+      [100, 1],
     ),
   ),
   sweep: sweep.apply(
     part(
       [
-        [32, 48],
-        [56, 68],
+        [40, 64],
+        [80, 100],
       ],
-      [32, 1],
-      [68, 1],
+      [40, 1],
+      [100, 1],
     ),
   ),
   // the 3D toys: points, then round the head, then everything, then they leave
   tour: tour.apply(
     part(
       [
-        [36, 44],
-        [60, 68],
+        [44, 56],
+        [84, 100],
       ],
-      [36, 1],
-      [68, 1],
+      [44, 1],
+      [100, 1],
     ),
   ),
   circle: circle.apply(
     part(
       [
-        [40, 48],
-        [56, 70],
+        [52, 64],
+        [80, 106],
       ],
-      [40, 1],
-      [70, 1],
+      [52, 1],
+      [106, 1],
     ),
   ),
   swing: swing.apply(
     part(
       [
-        [44, 48],
-        [60, 66],
+        [56, 64],
+        [88, 102],
       ],
-      [44, 1],
-      [66, 1],
+      [56, 1],
+      [102, 1],
     ),
   ),
-  roll: roll.apply(part([[48, 76]], [48, 0], [56, 1], [72, 1], [76, 0])),
+  roll: roll.apply(part([[64, 116]], [64, 0], [72, 1], [108, 1], [116, 0])),
   echo: echo.apply(
     part(
       [
-        [52, 60],
-        [64, 72],
+        [68, 76],
+        [88, 108],
       ],
-      [52, 1],
-      [72, 1],
+      [68, 1],
+      [108, 1],
     ),
   ),
 }

@@ -11,6 +11,7 @@
 import { note, sine, sound } from '@strudel/core'
 import '@d-studio-labs/core/space'
 import { DOTTED_EIGHTH } from '@d-studio-labs/core/fx'
+import { drift } from '@d-studio-labs/core/mod'
 
 // .width(0.02): left and right laid almost on top of each other, so the ping is a point
 export const tour = sound('dclick*4')
@@ -81,7 +82,7 @@ export const chord = note('<[f2,c3,eb3,ab3] [db2,ab2,c3,f3]>')
   .struct('~ x ~ ~ ~ x ~ ~')
   .sound('dchord')
   .legato(0.4)
-  .lpf(520)
+  .lpf(drift(380, 900, 29))
   .lpq(6)
   .lpenv(2)
   .lpdecay(0.2)
@@ -91,8 +92,8 @@ export const chord = note('<[f2,c3,eb3,ab3] [db2,ab2,c3,f3]>')
   .delay(0.8)
   .lock(1)
   .delaytime(DOTTED_EIGHTH)
-  .delayfeedback(0.65)
-  .delayfreq(650)
+  .delayfeedback(drift(0.55, 0.72, 53))
+  .delayfreq(drift(450, 1000, 37))
   .delaywidth(2)
   .delaydiffuse(0.4)
   .delayroom(1)
