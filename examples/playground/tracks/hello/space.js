@@ -73,10 +73,11 @@ export const echo = sound('dclick*2')
   .elev(0.08)
   .orbit(10)
 
-// the dub chord: Fm7 stabs, low and dark, on dchord (the Basic Channel voice) that give the track its identity. The stab
+// the dub chord: Fm7 and Dbmaj7 stabs, four bars each, low and dark, on dchord (the Basic Channel voice) that give the track its identity. The stab
 // stays dry in front; its dotted-8th echoes (a band-pass in the loop, so each repeat is thinner than the
 // last) are thrown into the sphere and spin the other way round the head, and bloom into the room
-export const chord = note('f2,c3,eb3,ab3')
+export const chord = note('<[f2,c3,eb3,ab3] [db2,ab2,c3,f3]>')
+  .slow(4)
   .struct('~ x ~ ~ ~ x ~ ~')
   .sound('dchord')
   .legato(0.4)
