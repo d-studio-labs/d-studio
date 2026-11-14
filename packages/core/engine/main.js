@@ -104,7 +104,7 @@ fetch('/__engine')
   .catch(() => {})
 
 // the sound field SuperCollider measures (superdirt/space.scd → vite-plugin.js), 60 Hz;
-// stale after half a second, and Halo falls back to placing things from the score
+// stale after half a second, and the spatial view falls back to placing things from the score
 let field = null
 const fieldNow = () => (field && performance.now() - field.at < 500 ? field.v : null)
 
@@ -120,17 +120,17 @@ const views = {
   lanes: createViz($('#lanes'), () => ({ ...tick(), onBar: (bar) => (status.bar.textContent = bar) })),
 }
 
-// ── Modes: lanes (the punchcard) and halo (the sound field round the listener) ──
-// Only the shown view runs its frame loop. Halo (and ogl) load on first use.
-const canvases = { lanes: $('#lanes'), halo: $('#halo') }
+// ── Modes: lanes (the punchcard) and spatial (the sound field round the listener) ──
+// Only the shown view runs its frame loop. The spatial view (and ogl) load on first use.
+const canvases = { lanes: $('#lanes'), spatial: $('#spatial') }
 const tabs = [...document.querySelectorAll('nav button')]
 let mode = null
 
 async function show(next) {
   if (!Object.hasOwn(canvases, next) || next === mode) return
-  if (next === 'halo' && !views.halo) {
-    const { createHalo } = await import('./halo.js')
-    views.halo ??= createHalo(canvases.halo, () => {
+  if (next === 'spatial' && !views.spatial) {
+    const { createSpatial } = await import('./spatial.js')
+    views.spatial ??= createSpatial(canvases.spatial, () => {
       const s = tick()
       const cps = engine?.anchor?.cps ?? (engine?.bpm ? engine.bpm / 240 : 0)
       const bar = `bar ${Math.floor(s.now) + 1} · ${Math.floor((s.now % 1) * 4) + 1}/4`
@@ -150,9 +150,9 @@ tabs.forEach((b) => b.addEventListener('click', () => show(b.dataset.mode)))
 addEventListener('keydown', (e) => {
   if (e.metaKey || e.ctrlKey || e.altKey) return
   if (e.key === '1') show('lanes')
-  if (e.key === '2') show('halo')
+  if (e.key === '2') show('spatial')
 })
-show(location.hash === '#halo' ? 'halo' : 'lanes')
+show(location.hash === '#spatial' ? 'spatial' : 'lanes')
 
 if (import.meta.hot) {
   import.meta.hot.on('studio:engine', hear)

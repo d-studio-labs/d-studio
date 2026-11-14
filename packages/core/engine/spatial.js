@@ -1,4 +1,4 @@
-// ── Halo: the sound field round the listener, as a cloud of points ──
+// ── Spatial: the sound field round the listener, as a cloud of points ──
 // Shells of dots around a head (front is away from you, left is on your left).
 // Each sounding thing (a note, an echo) lights the dots in a first-order lobe
 // round its direction, and pushes them outward. Where things sit comes from
@@ -139,10 +139,10 @@ const css = (name) => getComputedStyle(document.documentElement).getPropertyValu
  *   playing: boolean,
  *   field: number[] | null,
  * }} getState read once per frame; `field` is SuperCollider's measured sound field (ten products per orbit)
- * while it's sending, else null and Halo places things from the score
- * @returns {{ start: () => void, stop: () => void }} only a started Halo draws
+ * while it's sending, else null and the spatial view places things from the score
+ * @returns {{ start: () => void, stop: () => void }} only a started spatial view draws
  */
-export function createHalo(canvas, getState) {
+export function createSpatial(canvas, getState) {
   const renderer = new Renderer({
     canvas,
     dpr: Math.min(window.devicePixelRatio || 1, 1.5),

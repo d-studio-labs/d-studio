@@ -39,7 +39,7 @@
         grid-template-areas: 'lanes' 'status';
       }
       #lanes,
-      #halo {
+      #spatial {
         grid-area: lanes;
         width: 100%;
         height: 100%;
@@ -141,11 +141,11 @@
   </head>
   <body>
     <canvas id="lanes"></canvas>
-    <canvas id="halo" hidden></canvas>
+    <canvas id="spatial" hidden></canvas>
     <footer>
       <nav role="tablist">
         <button role="tab" data-mode="lanes" aria-selected="true" title="key 1">lanes</button>
-        <button role="tab" data-mode="halo" aria-selected="false" title="key 2">halo</button>
+        <button role="tab" data-mode="spatial" aria-selected="false" title="key 2">spatial</button>
       </nav>
       <span id="track"></span>
       <span id="state">○ waiting for d-studio play</span>

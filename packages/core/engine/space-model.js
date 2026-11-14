@@ -1,7 +1,7 @@
 // ── Space model: where every sounding thing sits around the listener ──
 // A JS port of the placement in superdirt/space.scd (azim, spin, roll, elev, width,
 // sphere, space, glide), driven by the score instead of the audio. Pure functions,
-// no DOM: the Halo view (halo.js) feeds them the parts and the clock.
+// no DOM: the spatial view (spatial.js) feeds them the parts and the clock.
 //
 // Axes (as ATK's B-format): x front, y left, z up. Angles in radians.
 
