@@ -178,15 +178,28 @@ if (mode == "off" or: { \FoaPanB.asClass.isNil }) {
 	// second. Per orbit, its ambisonic part plus its stereo remainder (laid at ±45°) is one
 	// first-order field, and the ten smoothed products of W X Y Z are all the browser needs
 	// to compute the energy that orbit has in any direction. Forwarded as /field (ten
-	// numbers per orbit) to DSTUDIO_FIELD_PORT (default 57130), where `d-studio display` listens
+	// numbers per orbit, then three band powers per orbit) to DSTUDIO_FIELD_PORT (default 57130), where `d-studio display` listens
 	SynthDef(\dstudio_field, { |base|
 		var pairs = [[0, 0], [0, 1], [0, 2], [0, 3], [1, 1], [1, 2], [1, 3], [2, 2], [2, 3], [3, 3]];
-		var stats = dirt.orbits.size.collect { |o|
+		// the products are smoothed by an even lag: a LagUD (fast up, slow down) of a signed product
+		// like W×Y rises on every random peak and sinks slowly, so a noise with no direction at all
+		// read about 0.3 to the left. The display's own release (spatial.js) does the slow fall
+		var fields = dirt.orbits.size.collect { |o|
 			var x = In.ar(base + (o * 6), 6);
-			var f = x[0..3] + FoaPanB.ar(x[4], pi / 4, 0) + FoaPanB.ar(x[5], pi.neg / 4, 0);
-			pairs.collect { |p| A2K.kr(LagUD.ar(f[p[0]] * f[p[1]], 0.004, 0.09)) }
+			x[0..3] + FoaPanB.ar(x[4], pi / 4, 0) + FoaPanB.ar(x[5], pi.neg / 4, 0)
+		};
+		var stats = fields.collect { |f|
+			pairs.collect { |p| A2K.kr(Lag.ar(f[p[0]] * f[p[1]], 0.02)) }
 		}.flatten;
-		SendReply.kr(Impulse.kr(60), '/dstudio/field', stats);
+		// then, per orbit, its power below 200 Hz, between 200 and 2000, above 2000: which parts
+		// share a register, for the masking arcs
+		var bands = fields.collect { |f|
+			var lo = LPF.ar(LPF.ar(f[0], 200), 200);
+			var hi = HPF.ar(HPF.ar(f[0], 2000), 2000);
+			var mid = LPF.ar(LPF.ar(HPF.ar(HPF.ar(f[0], 200), 200), 2000), 2000);
+			[lo, mid, hi].collect { |b| A2K.kr(LagUD.ar(b * b, 0.01, 0.15)) }
+		}.flatten;
+		SendReply.kr(Impulse.kr(60), '/dstudio/field', stats ++ bands);
 	}).add;
 	server.sync;
 	~dstudioField = Synth.before(~dstudioMaster, \dstudio_field, [base: orbBus.index]);

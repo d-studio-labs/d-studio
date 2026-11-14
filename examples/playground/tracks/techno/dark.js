@@ -10,6 +10,7 @@
 // The notes are F2 and up so the pad doesn't sit on the kick's sub (49 Hz, the thump).
 import { createParam, note, stack } from '@strudel/core'
 import '@d-studio-labs/core/fx'
+import '@d-studio-labs/core/space'
 import { BPM, during, env, DARK_BUILD, DARK_OUTRO } from './song.js'
 
 // dbasspad's own controls (synths/d-studio.scd)
@@ -54,4 +55,16 @@ const outro = calm(drone('f2,c3', 'dbasspad')).bright(800).swell(0.1).gain(0.3).
 // fundamental (87 Hz) is cut, so the drone is heard by its harmonics and the C3 (131 Hz)
 // a little grit: the orbit's drive (superdirt/drive.scd), after the high-pass and before the room, so
 // the reverb is of the driven sound. The synth already soft-clips; this adds a bit more, low and dark
-export const dark = stack(build, outro).hpf(110).drive(0.15).drivetone(0.35).room(0.5).size(0.9).orbit(11)
+export const dark = stack(build, outro)
+  .hpf(110)
+  .drive(0.15)
+  .drivetone(0.35)
+  .room(0.5)
+  .size(0.9)
+  // the earth: round the head and 36° below ear level, turning once in 48 bars the opposite way to
+  // the pad, so the drone rises from under you and circles slowly
+  .sphere(1)
+  .width(0.25)
+  .spin(-1 / 48)
+  .elev(-0.1)
+  .orbit(11)

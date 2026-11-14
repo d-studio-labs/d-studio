@@ -21,5 +21,7 @@ export const air = drone('f5,c6', 'dpadtex')
   .sphere(1)
   .width(0.3)
   .spin(1 / 12)
+  // high overhead (65°): the sky, above the pad's canopy
+  .elev(0.18)
   .orbit(14)
   .apply(during(AIR))

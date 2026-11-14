@@ -39,7 +39,7 @@ export function studio({ projectDir = process.cwd() } = {}) {
     },
 
     configureServer(server) {
-      // the spatial view's field: superdirt/space.scd sends /field (30 floats, 60 Hz) here as UDP;
+      // the spatial view's field: superdirt/space.scd sends /field (13 floats per orbit: ten field products, then three band powers; 60 Hz) here as UDP;
       // it goes on to the page as it comes. Not listening is fine: it then follows the score
       const port = Number(process.env.DSTUDIO_FIELD_PORT ?? 57130)
       const sock = dgram.createSocket({ type: 'udp4', reuseAddr: true })

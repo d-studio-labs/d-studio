@@ -244,6 +244,23 @@ look from another side.
   `.azim`, `.spin`, `.roll`, `.elev` and the echoes thrown into the sphere by `.space`.
 - The legend lists every part with a level meter and where it sits (`front`, `90° L`, `back ↑12°`, `diffuse`).
   Point at a part to see it alone, click to pin it. A hit lights its part up; a steady sound settles to a dim bed.
+- Round the head: the horizon ring with front/left/back/right ticks, a ring overhead, the up-down rings, and the
+  ±30° wedge ahead. Sound behind you is dimmer and cooler. Each directed part gets a dot where it sits, a
+  line down to the horizon plane when it's above or below it, and a ring spreading out from it on every hit.
+  The white needle leans where the amplitude-weighted sum of all the parts' directions points: off-centre
+  means the mix leans that way, short means it's wide or diffuse.
+- Camera: keys `p` (3/4), `t` (top, left/right spread), `s` (side, height), `l` (low behind on the left) and `f` (from
+  ahead) fly there, as do the buttons top left. Cinematic shots, where the camera moves itself: `v` is point of view,
+  inside the head with a wide lens, turning to the loudest or latest-hit part; `o` is over the shoulder, behind the
+  head looking past it at that part; `z` pushes in with the lens closing, `b` pulls back with it opening, `c` cranes up
+  and round. A chosen shot repeats over eight bars, going in and coming back out.
+- `a` is auto: it cuts on bar lines between all of those, each shot lasting 4, 8, 12 or 16 bars, and sways slowly in
+  the orbit views. A bar always gets the same shot, so a loop repeats. Dragging, wheeling or choosing a view pauses it
+  for 8 seconds.
+- Masking: when two parts sit close together (a wide sound counts as closer) and share a register
+  (each orbit's power is split into below 200 Hz, 200–2000 and above), a pulsing arc joins them, amber going to
+  crimson as it crowds. A kick and a centred bass both live low and front, so they get one: that's the real
+  overlap, not a fault. `m` or the button toggles it.
 - It measures the real sound: `superdirt/space.scd` sends each orbit's first-order ambisonic field 60 times a second
   (UDP, `DSTUDIO_FIELD_PORT`), so it needs `npm run dirt` restarted after updating and `DIRT_SPACE` not `off`.
   With no field arriving (dirt not running, or `off`) it places things from the score instead, with no legend.

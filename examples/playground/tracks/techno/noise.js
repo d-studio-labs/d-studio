@@ -1,6 +1,7 @@
 // ── Noise: tape hiss, the first thing you hear: it fades in over the first sixteen bars ──
 import { sound } from '@strudel/core'
 import { fadeIn } from '@d-studio-labs/core/arrange'
+import '@d-studio-labs/core/space'
 import { HISS_FADE } from './song.js'
 
 // dhiss (synths/d-studio.scd): a flat noise bed. legato 2.5, as in harbor and lantern-ambient
@@ -12,5 +13,12 @@ import { HISS_FADE } from './song.js'
 export const hiss = sound('dhiss')
   .legato(2.5)
   .gain(0.018)
+  // the air itself: a different noise in each ear, its image (±54°) rolling over the head, behind
+  // → overhead → in front → under the chin → behind, once in 32 bars. Roll is the front-to-back
+  // motion (spin turns it round the head sideways); at ±90° the image would sit on the roll's
+  // axis and not move, hence the narrower width
+  .sphere(1)
+  .width(0.15)
+  .roll(1 / 32)
   .orbit(2)
   .apply(fadeIn(...HISS_FADE))
