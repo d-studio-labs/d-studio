@@ -246,6 +246,72 @@ export function createHalo(canvas, getState) {
   const env = new Float32Array(MAX_ORBITS)
   const shape = new Float32Array(MAX_ORBITS * 10)
   const loud = new Float32Array(MAX_ORBITS).fill(1e-6)
+  const slow = new Float32Array(MAX_ORBITS) // its level a second or two ago
+  const hit = new Float32Array(MAX_ORBITS) // 1 on a hit, fading over a third of a second
+  const gainOf = new Float32Array(MAX_ORBITS).fill(0.4) // how bright it's drawn
+
+  // ── The legend: every part in its colour, with a level and where it sits ──
+  // Point at one to put it alone (the rest drop to ghosts); click to pin it
+  const legend = document.createElement('div')
+  legend.id = 'legend'
+  legend.hidden = true
+  document.body.append(legend)
+  let hover = null
+  let pinned = null
+  let legendAt = 0
+  let rowsKey = ''
+  let rows = []
+  legend.addEventListener('mouseleave', () => (hover = null))
+  const toRgb = (c) => `rgb(${c.map((x) => Math.round(x * 255)).join(',')})`
+
+  // 0° front, + to the left, 180° behind; "diffuse" when the sound points nowhere (a wide pad, noise)
+  function where(o) {
+    const at = o * 10
+    const ww = shape[at]
+    const mag = Math.hypot(shape[at + 1], shape[at + 2], shape[at + 3])
+    if (env[o] < loud[o] * 0.03 || ww < 1e-9) return '–'
+    if (mag / (Math.SQRT2 * ww) < 0.4) return 'diffuse'
+    const az = (Math.atan2(shape[at + 2], shape[at + 1]) * 180) / Math.PI
+    const el = (Math.asin(Math.min(1, shape[at + 3] / mag)) * 180) / Math.PI
+    const side =
+      Math.abs(az) < 8 ? 'front' : Math.abs(az) > 172 ? 'back' : `${Math.round(Math.abs(az))}° ${az > 0 ? 'L' : 'R'}`
+    return Math.abs(el) >= 5 ? `${side} ${el > 0 ? '↑' : '↓'}${Math.round(Math.abs(el))}°` : side
+  }
+
+  function renderLegend(orbits, lanes) {
+    const ids = []
+    for (let o = 0; o < orbits; o++) if (orbitLane.has(o)) ids.push(o)
+    const k = ids.map((o) => `${o}:${orbitLane.get(o)}:${lanes[orbitLane.get(o)]?.[0]}`).join()
+    if (k !== rowsKey) {
+      rowsKey = k
+      rows = ids.map((o) => {
+        const row = document.createElement('div')
+        row.className = 'row'
+        const sw = document.createElement('span')
+        sw.className = 'sw'
+        sw.style.background = toRgb(laneColors[orbitLane.get(o) % laneColors.length])
+        const name = document.createElement('span')
+        name.textContent = lanes[orbitLane.get(o)]?.[0] ?? `orbit ${o}`
+        const bar = document.createElement('span')
+        bar.className = 'bar'
+        bar.append(document.createElement('i'))
+        const at = document.createElement('span')
+        at.className = 'at'
+        row.append(sw, name, bar, at)
+        row.addEventListener('mouseenter', () => (hover = o))
+        row.addEventListener('click', () => (pinned = pinned === o ? null : o))
+        return { o, row, bar: bar.firstChild, at }
+      })
+      legend.replaceChildren(...rows.map((r) => r.row))
+    }
+    for (const r of rows) {
+      r.bar.style.transform = `scaleX(${Math.min(1, Math.sqrt(env[r.o] / loud[r.o])).toFixed(2)})`
+      const text = where(r.o)
+      if (r.at.textContent !== text) r.at.textContent = text
+      r.row.classList.toggle('on', hit[r.o] > 0.35)
+      r.row.classList.toggle('pin', pinned === r.o)
+    }
+  }
 
   function frame(ms) {
     raf = requestAnimationFrame(frame)
@@ -286,15 +352,25 @@ export function createHalo(canvas, getState) {
         // while it's sounding the shape follows it; as it dies away the shape stays
         if (power > env[o] * 0.5 && power > 1e-12) for (let i = 0; i < 10; i++) shape[at + i] = field[at + i] / power
         loud[o] = Math.max(loud[o] * forget, env[o], 1e-6)
+        // a hit is a jump above where the part has been lately; a steady sound never is one
+        hit[o] = Math.max(hit[o] * Math.exp(-dt / 0.35), Math.min(1, ((power - slow[o]) / loud[o]) * 3))
+        slow[o] += (power - slow[o]) * (1 - Math.exp(-dt / 1.5))
         decay[o] = env[o]
         total += env[o]
       }
       peak = Math.max(peak * forget, total, 1e-5)
       const oc = uniforms.uOrbCol.value
+      const pick = pinned ?? hover
+      const toward = 1 - Math.exp(-dt / 0.12)
       for (let o = 0; o < orbits; o++) {
         // an orbit counts against its own best as much as against the loudest: a clap
         // shows next to a kick, a kick still looks bigger
-        const scale = (1.5 * decay[o]) / Math.sqrt(loud[o] * peak)
+        let scale = (1.5 * decay[o]) / Math.sqrt(loud[o] * peak)
+        // what's active now is bright: a hit lights its part up and it settles to a dim bed, so
+        // a steady pad stays behind the kick. Pointing at a part in the legend puts it alone
+        const want = pick === null ? 0.4 + 0.6 * hit[o] : o === pick ? 1.3 : 0.04
+        gainOf[o] = want > gainOf[o] ? want : gainOf[o] + (want - gainOf[o]) * toward
+        scale *= gainOf[o]
         for (let i = 0; i < 10; i++) f[o * 10 + i] = shape[o * 10 + i] * scale
         const lane = orbitLane.get(o)
         const c = lane === undefined ? GREY : laneColors[lane % laneColors.length]
@@ -303,7 +379,13 @@ export function createHalo(canvas, getState) {
         oc[o * 3 + 2] = c[2]
       }
       uniforms.uOrbits.value = orbits
+      legend.hidden = false
+      if (ms - legendAt > 66) {
+        legendAt = ms
+        renderLegend(orbits, lanes)
+      }
     } else {
+      legend.hidden = true
       if (String(cycle) !== key) {
         key = String(cycle)
         events = collect(lanes, cycle - BEHIND, cycle + 2)
@@ -349,6 +431,7 @@ export function createHalo(canvas, getState) {
     stop() {
       cancelAnimationFrame(raf)
       raf = 0
+      legend.hidden = true
     },
   }
 }
